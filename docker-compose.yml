@@ -1,0 +1,130 @@
+version: '3.9'
+
+x-jobs-common: &jobs-common
+    image: registry.gitlab.com/r2devops/jobs:10ce311e2459f27edc09f87a51ca4aec071b6300
+    env_file: local.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - intranet
+
+services:
+  minio:
+    image: bitnami/minio:2022.11.11
+    env_file:
+      - local.env
+    expose:
+      - "9000"
+      - "9001"
+    ports:
+      - "9000:9000" #TODO For Interface, should be remove for Iteration 2
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    # TODO : Setup Minio with S3 on Iteration 4
+    # entrypoint: >
+    #   /bin/sh -c "
+    #   /opt/bitnami/minio-client/mc config host add myminio http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
+    #   /opt/bitnami/minio-client/mc rm -r --force myminio/$MINIO_BUCKET;
+    #   /opt/bitnami/minio-client/mc mb myminio/$MINIO_BUCKET;
+    #   /opt/bitnami/minio-client/mc policy set download myminio/$MINIO_BUCKET;
+    #   exit 0;
+    #   "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 30s
+    networks:
+      - intranet
+
+  kratos-migrate:
+    image: oryd/kratos:v0.8.2-alpha.1
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true&mode=rwc
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: .
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - intranet
+
+  kratos:
+      depends_on:
+        - kratos-migrate
+      image: oryd/kratos:v0.8.0-alpha.3-sqlite
+      expose:
+        - "4433"
+      ports:
+        - '4433:4433' # public
+        - '4434:4434' # admin blocked
+      restart: unless-stopped
+      environment:
+        - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
+        - LOG_LEVEL=debug
+      command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+      volumes:
+        - type: volume
+          source: kratos-sqlite
+          target: /var/lib/sqlite
+          read_only: false
+        - type: bind
+          source: .
+          target: /etc/config/kratos
+      networks:
+        - intranet
+
+  jobs:
+    <<: *jobs-common
+    command: ["/bin/sh", "-c", "sleep 10 && ./app"]
+    expose:
+      - "3001"
+    ports:
+      - "3001:3001"
+
+  jobs_worker:
+    <<: *jobs-common
+    command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+
+  redis:
+    image: redis:6
+    ports:
+      - 6379:6379
+    networks:
+      - intranet
+
+  postgres:
+    image: postgres:13
+    env_file:
+      - local.env
+    ports:
+      - 5432:5432
+    networks:
+      - intranet
+
+  frontend:
+    image: registry.gitlab.com/r2devops/frontend:2552b8094914619df109653cb54835fc3d779906
+    ports:
+      - 3000:3000
+    restart: on-failure
+    links:
+      - jobs
+      - kratos
+    networks:
+      - intranet
+
+
+networks:
+  intranet:
+
+volumes:
+  kratos-sqlite:
+  minio-data:

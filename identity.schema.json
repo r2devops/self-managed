@@ -1,0 +1,132 @@
+{
+  "$id": "https://r2devops.io/schemas/v1/member.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "R2Devops Member (v1)",
+  "type": "object",
+  "properties": {
+    "traits": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "title": "E-Mail",
+          "minLength": 3,
+          "not": {
+            "anyOf": [
+              {
+                "pattern": "@mailinator\\.com$"
+              },
+              {
+                "pattern": "@yopmail\\.com$"
+              }
+            ]
+          },
+          "ory.sh/kratos": {
+            "credentials": {
+              "password": {
+                "identifier": true
+              }
+            },
+            "verification": {
+              "via": "email"
+            },
+            "recovery": {
+              "via": "email"
+            }
+          }
+        },
+        "username": {
+          "minLength": 2,
+          "type": "string",
+          "title": "User Name",
+          "pattern": "^[\\.a-zA-Z0-9_-]+$",
+          "ory.sh/kratos": {
+            "credentials": {
+              "password": {
+                "identifier": true
+              }
+            }
+          }
+        },
+        "gitlab_username": {
+          "minLength": 1,
+          "type": "string",
+          "title": "GitLab username",
+          "pattern": "^[\\.a-zA-Z0-9_-]+$"
+        },
+        "gitlab_token": {
+          "type": "string",
+          "title": "GitLab token"
+        },
+        "github_username": {
+          "type": "string",
+          "title": "GitHub username"
+        },
+        "github_token": {
+          "type": "string",
+          "title": "GitHub token"
+        },
+        "full_name": {
+          "type": "string",
+          "title": "Full name",
+          "minLength": 3,
+          "maxLength": 40,
+          "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+        },
+        "picture": {
+          "type": "string",
+          "format": "uri",
+          "title": "Picture URL"
+        },
+        "website": {
+          "type": "string",
+          "format": "uri",
+          "title": "Website URL"
+        },
+        "company": {
+          "type": "string",
+          "title": "Company",
+          "minLength": 3,
+          "maxLength": 60,
+          "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+        },
+        "linkedin": {
+          "type": "string",
+          "format": "uri",
+          "title": "Linkedin"
+        },
+        "job_title": {
+          "type": "string",
+          "title": "Job title",
+          "minLength": 3,
+          "maxLength": 60,
+          "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+        },
+        "twitter": {
+          "type": "string",
+          "title": "Twitter",
+          "minLength": 2,
+          "maxLength": 16,
+          "pattern": "^@?[A-Za-z0-9_]+$"
+        },
+        "bio": {
+          "type": "string",
+          "format": "text",
+          "minLength": 3,
+          "maxLength": 400,
+          "title": "Bio"
+        },
+        "goodies": {
+          "type": "string",
+          "title": "Goodies code"
+        }
+      },
+      "required": [
+        "email",
+        "username"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
