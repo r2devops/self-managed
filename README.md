@@ -1,6 +1,8 @@
 # Self Hosted
 
-This projects aims to provides infrastructure files in order to launch a self hosted instance of [R2Devops](https://r2devops.io).
+This projects describes how to setup a self-hosted instance of R2devops.
+
+You can check the complete documentation here 
 
 ## Usage
 

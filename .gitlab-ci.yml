@@ -1,0 +1,20 @@
+stages:
+  - build
+  - tests
+  - deploy
+
+include:
+  - remote: 'https://api.r2devops.io/job/r/r2devops-bot/mkdocs/1.6.1.yaml?ignore=true.yml'
+  - remote: 'https://api.r2devops.io/job/r/r2devops-bot/codespell/0.2.0.yaml?ignore=true.yml'
+  - remote: 'https://api.r2devops.io/job/r/r2devops-bot/links_checker/2.1.0.yaml?ignore=true.yml'
+  - remote: 'https://api.r2devops.io/job/r/r2devops-bot/pages/0.5.0.yaml?ignore=true.yml'
+
+links_checker:
+  variables:
+    LYCHEE_DIRECTORY: "docs"
+    LYCHEE_EXCLUDE_LINKS: 'file://[a-z0-9/]*|https://gitlab\.com/r2devops/self-hosted'
+  allow_failure: true
+
+codespell:
+  variables:
+    CODESPELL_DIRECTORY: "docs"

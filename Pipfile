@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+mkdocs = ">=1.4.2"
+pymdown-extensions = ">=9.8"
+mkdocs-material-extensions = ">=1.1"
+mkdocs-minify-plugin = ">=0.6.1"
+mkdocs-git-revision-date-localized-plugin = ">=1.1.0"
+mkdocs-awesome-pages-plugin = ">=2.8.0"
+Pygments = ">=2.4"
+Markdown = ">=3.2"
+mkdocs-material = "8.5.10"
+
+[requires]
+python_version = "3"
