@@ -2,24 +2,13 @@
 # POC, this MUSN'T BE our configuration file
 # TODO : put a real confiugration file in this repo
 
-version: v0.7.0-alpha.1
+version: v0.8.0-alpha.3
 
-dsn: memory
-
-cookies:
-  domain: localhost
 
 serve:
   public:
-    base_url: http://localhost:4433
     cors:
       enabled: true
-      allowed_origins:
-        - http://frontend:3000
-        - http://localhost:3002
-        - http://localhost:3000
-        - http://localhost:3001
-        - http://jobs:3001
       allowed_methods:
         - POST
         - GET
@@ -35,20 +24,16 @@ serve:
         - Set-Cookie
       #options_passthrough: true
       debug: true
-  admin:
-    base_url: http://kratos:4434/
 
 selfservice:
-  default_browser_return_url: http://localhost:3000/u/signin
-  whitelisted_return_urls:
-    - http://localhost:3000
-
+  # whitelisted_return_urls:
+  #   - https://r2devops.gridexx.fr
+    
   methods:
     link:
       enabled: true
-      config:
-        # Defines how long a recovery link is valid for (default 1h)
-        lifespan: 15m
+    profile:
+      enabled: true
     password:
       enabled: true
     oidc:
@@ -57,83 +42,83 @@ selfservice:
         providers:
           - id: gitlab # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
             provider: gitlab
-            # Do not use these secrets in production, they are intended to be test ONLY
-            # When exporting this file for external use, please replace by REDACTED values of secret & id
-            client_id: f6479f0dd71e3a09718f90d158c87eddfd9bb1f54f7eae26c6e52e408586eb87
-            client_secret: 76339ebbf0f15102a2cdbdaf0bd2fb15ab644063345562927475696b7fe51325
+            # TODO : Paste your Application ID and Application secret here :
+            client_id: #Application ID
+            client_secret: #Secret
             mapper_url: file:///etc/config/kratos/oidc.gitlab.jsonnet
             scope:
-              - api
               - openid
               - email
-          - id: github # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
-            provider: github
-            # Do not use these secrets in production, they are intended to be test ONLY
-            # When exporting this file for external use, please replace by REDACTED values of secret & id
-            client_id: f17f35b2a4c47d66f27b
-            client_secret: cad6872f017b80106238a6ca5e8241ac8f2f3bcf
-            mapper_url: file:///etc/config/kratos/oidc.github.jsonnet
-            scope:
-              - user:email
-              - read:user
-
-    profile:
-      enabled: true
 
 
   flows:
-
+    # All ui urls and browser return urls are defined with environnment variables
     verification:
       enabled: true
-      ui_url: http://localhost:3000/u/verify
-
-    error:
-      ui_url: http://localhost:4455/error
 
     login:
-      ui_url: http://localhost:3000/u/signin
       lifespan: 10m
-
-    logout:
       after:
-        default_browser_return_url: http://localhost:3000/u/signin
+        password:
+          hooks:
+            - hook: require_verified_address
 
     settings:
-      ui_url: http://localhost:3000/dashboard
-      privileged_session_max_age: 15m
-
-    recovery:
-      enabled: true
-      ui_url: http://localhost:3000/u/recovery
+      lifespan: 20m
+      privileged_session_max_age: 1h
 
     registration:
-      ui_url: http://localhost:3000/u/signup
       lifespan: 10m
       after:
         oidc:
           hooks:
             - hook: session
+        # TODO : See how to add user fro self-hosted r2 inside sendinBlue
+        # hooks:
+        #   - hook: web_hook
+        #     config:
+        #       url: https://api.sendinblue.com/v3/contacts
+        #       method: POST
+        #       body: file:///etc/config/web_hook_sendinblue.jsonnet
+        #       auth:
+        #         type: api_key
+        #         config:
+        #           name: api-key
+        #           in: header
+        #           # value: set as secret in terraform configuration //TODO: check the value
+
+    recovery:
+      enabled: true
+
 
 log:
   level: debug
   format: text
   leak_sensitive_values: true
 
-secrets:
-  cookie:
-    - PLEASE-CHANGE-ME-I-AM-VERY-INSECURE #TODO
-
-hashers:
-  argon2:
-    parallelism: 1
-    memory: 128MB
-    iterations: 2
-    salt_length: 16
-    key_length: 16
-
 identity:
   default_schema_url: file:///etc/config/kratos/identity.schema.json
 
 courier:
   smtp:
-    connection_uri: smtp://mailhog:1025
+    from_address: noreply@r2devops.io
+    from_name: R2Devops
+  template_override_path: /conf/courier-templates
+  # templates:
+  #   recovery:
+  #     valid:
+  #       subject: R2Devops - Recover access to your account
+  #       body: file:///etc/config/kratos/courier/recovery.html.gotmpl
+  #     invalid:
+  #       subject: R2Devops - Account access attempted
+  #       body: Hi, you (or someone else) entered this email address when trying to recover access to an account. However, this email address is not on our database of registered users and therefore the attempt has failed. If this was you, check if you signed up using a different address. If this was not you, please ignore this email.
+  #       plainBody: Hi, you (or someone else) entered this email address when trying to recover access to an account.
+  #     verification:
+  #       valid:
+  #         subject: "R2Devops - Activate your account"
+  #         body: file:///etc/config/kratos/courier/verification.html.gotmpl
+  #       invalid:
+  #         subject: "R2Devops - Account activation attempted"
+  #         body: Hi, you (or someone else) entered this email address when trying to activate an account. However, this email address is not on our database of registered users and therefore the attempt has failed. If this was you, check if you signed up using a different address. If this was not you, please ignore this email.
+  #         plainBody: Hi, you (or someone else) entered this email address when trying to activate an account.
+          

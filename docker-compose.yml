@@ -17,20 +17,15 @@ services:
     expose:
       - "9000"
       - "9001"
-    ports:
-      - "9000:9000" #TODO For Interface, should be remove for Iteration 2
-      - "9001:9001"
     volumes:
       - minio-data:/data
-    # TODO : Setup Minio with S3 on Iteration 4
-    # entrypoint: >
-    #   /bin/sh -c "
-    #   /opt/bitnami/minio-client/mc config host add myminio http://minio:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
-    #   /opt/bitnami/minio-client/mc rm -r --force myminio/$MINIO_BUCKET;
-    #   /opt/bitnami/minio-client/mc mb myminio/$MINIO_BUCKET;
-    #   /opt/bitnami/minio-client/mc policy set download myminio/$MINIO_BUCKET;
-    #   exit 0;
-    #   "
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 $S3_ACCESS_KEY $S3_SECRET_KEY;
+      /usr/bin/mc mb myminio/$S3_BUCKET;
+      /usr/bin/mc policy set public myminio/S3_BUCKET;
+      exit 0;
+      "
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -60,17 +55,15 @@ services:
   kratos:
       depends_on:
         - kratos-migrate
+        - mailhog
       image: oryd/kratos:v0.8.0-alpha.3-sqlite
       expose:
         - "4433"
-      ports:
-        - '4433:4433' # public
-        - '4434:4434' # admin blocked
+        - "4434"
       restart: unless-stopped
       environment:
         - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
-        - LOG_LEVEL=debug
-      command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+      command: serve -c /etc/config/kratos/kratos.yml --watch-courier
       volumes:
         - type: volume
           source: kratos-sqlite
@@ -79,6 +72,15 @@ services:
         - type: bind
           source: .
           target: /etc/config/kratos
+      env_file:
+        - local.env
+      labels:
+        - "traefik.http.routers.kratos.rule=Host(\"$KRATOS_URL_WITHOUT_PATH\")&&PathPrefix(\"$KRATOS_PATH\")"
+        - "traefik.http.routers.kratos.middlewares=kratos-stripprefix"
+        - "traefik.http.middlewares.kratos-stripprefix.stripprefix.prefixes=$KRATOS_PATH"
+        - "traefik.http.routers.kratos.entrypoints=websecure"
+        - "traefik.http.routers.kratos.tls=true"
+        - "traefik.http.routers.kratos.tls.certresolver=le"
       networks:
         - intranet
 
@@ -86,9 +88,14 @@ services:
     <<: *jobs-common
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     expose:
-      - "3001"
-    ports:
-      - "3001:3001"
+      - "80"
+    env_file:
+      - local.env
+    labels:
+      - "traefik.http.routers.api.rule=Host(\"$API_URL\")"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=le"
 
   jobs_worker:
     <<: *jobs-common
@@ -96,8 +103,8 @@ services:
 
   redis:
     image: redis:6
-    ports:
-      - 6379:6379
+    expose:
+      - "6379"
     networks:
       - intranet
 
@@ -105,22 +112,69 @@ services:
     image: postgres:13
     env_file:
       - local.env
-    ports:
-      - 5432:5432
+    expose:
+      - "5432"
     networks:
       - intranet
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
-  frontend:
-    image: registry.gitlab.com/r2devops/frontend:2552b8094914619df109653cb54835fc3d779906
-    ports:
-      - 3000:3000
-    restart: on-failure
-    links:
+  # TODO : remove and use a SMTP server
+  mailhog:
+      image: mailhog/mailhog:latest
+      expose:
+        - 1025
+        - 8025
+      networks:
+        - intranet
+
+  traefik:
+    image: traefik:v2.9
+    restart: unless-stopped
+    depends_on:
+      - frontend
       - jobs
       - kratos
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.le.acme.email=$CERTIFICATE_EMAIL
+      - --certificatesresolvers.le.acme.storage=/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+    labels:
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    env_file:
+      - local.env
+    volumes:
+      - $PWD/acme.json:/acme.json
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - intranet
 
+  
+
+  frontend:
+    image: registry.gitlab.com/r2devops/frontend:9af9f7016691e5d63dce250b2b4b75a479bcea45
+    restart: unless-stopped
+    env_file:
+      - local.env
+    expose:
+      - "3000"
+    labels:
+      - "traefik.http.routers.front.rule=Host(\"$FRONTEND_URL\")"
+      - "traefik.http.routers.front.entrypoints=websecure"
+      - "traefik.http.routers.front.tls=true"
+      - "traefik.http.routers.front.tls.certresolver=le"
+    networks:
+      - intranet
 
 networks:
   intranet:
@@ -128,3 +182,4 @@ networks:
 volumes:
   kratos-sqlite:
   minio-data:
+  postgres-data:
