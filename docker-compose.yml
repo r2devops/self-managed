@@ -145,8 +145,13 @@ services:
       - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.le.acme.email=$CERTIFICATE_EMAIL
       - --certificatesresolvers.le.acme.storage=/acme.json
-      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
     labels:
+      - "traefik.enable=false"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
+      - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.entrypoints=web"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
