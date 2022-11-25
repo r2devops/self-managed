@@ -35,7 +35,7 @@ extra:
     - icon: 'fontawesome/brands/gitlab'
       link: 'https://gitlab.com/r2devops/self-hosted'
     - icon: 'fontawesome/solid/envelope'
-      link: 'mailto:thomas@r2devops.io'
+      link: 'mailto:tech@r2devops.io'
 extra_css:
     - css/extra.css
 
