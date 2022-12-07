@@ -12,7 +12,7 @@
 Once your system meet the requirements, you need to copy the repository inside the server :
 
 ```bash
-git clone https://r2devops:<REPOSITORY_TOKEN>gitlab.com/r2devops/self-hosted.git
+git clone https://r2devops:<REPOSITORY_TOKEN>@gitlab.com/r2devops/self-hosted.git
 
 ```
 
