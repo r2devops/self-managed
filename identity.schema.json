@@ -27,12 +27,6 @@
               "password": {
                 "identifier": true
               }
-            },
-            "verification": {
-              "via": "email"
-            },
-            "recovery": {
-              "via": "email"
             }
           }
         },
@@ -58,14 +52,6 @@
         "gitlab_token": {
           "type": "string",
           "title": "GitLab token"
-        },
-        "github_username": {
-          "type": "string",
-          "title": "GitHub username"
-        },
-        "github_token": {
-          "type": "string",
-          "title": "GitHub token"
         },
         "full_name": {
           "type": "string",
