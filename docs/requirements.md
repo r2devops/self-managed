@@ -15,15 +15,7 @@ If all the requirements are met, you can directly continue to the next step.
 
 As some steps will be done inside your server, you should ensure you have access to it.
 
-Most of the time, you access a server through SSH. 
-
-??? note "I don't have the access"
-    If you don't have access to it, you can ask your administrator to give you an access to it.
-
-??? info "Setup the SSH key"
-    Otherwise, You should generate a SSH key and add it to your server, please refer to this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-use-ssh-to-connect-to-a-remote-server).
-
-Afterward, you can use the following command to connect to your server:
+Most of the time, you access a server through SSH, so you can use the following command to connect to your server:
 
 ```bash
 ssh <user>@<host>
@@ -47,7 +39,7 @@ Otherwise, check the installation part in the [documentation](https://git-scm.co
 
 Docker Engine should be installed on your system, as well as Docker Compose which is used for orchestrating all services.
 
-First connect, your server with SSH and ensure Docker Engine and Docker Compose are installed.
+Ensure Docker Engine and Docker Compose are installed.
 
 ```bash
 docker --version

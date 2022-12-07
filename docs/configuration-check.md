@@ -1,6 +1,33 @@
 
 # Configuration
 
+Final steps : login to docker and ensure it is working !
+
+### Docker Pull
+
+It's time to ensure, you have the correct access rights to pull the frontend image.
+
+First change the `FRONTEND_IMAGE_TAG` uses by the frontend service :
+
+```yaml title="docker-compose.yml" hl_lines="2"
+  frontend:
+    image: registry.gitlab.com/r2devops/frontend:$FRONTEND_IMAGE_TAG
+```
+
+Then paste this command : 
+```bash
+docker login https://registry.gitlab.com/v2/r2devops
+```
+
+With the below information:
+
+- username: `r2devops`
+- password: `REGISTRY_TOKEN`
+
+
+??? info "Where should I find them ?"
+    `REGISTRY_TOKEN` and `FRONTEND_IMAGE_TAG` have been send to you by email at the [beginning](/).  
+
 ### Launch the application
 
 
@@ -12,6 +39,11 @@ Go inside the folder `self-hosted` and launch the following command :
 ```bash
 docker compose --env-file=local.env up -d
 ```
+??? failure "I get a `docker compose` error"
+    Make sure you are pasting the right token!
+
+    Otherwise write a mail to [tech@r2devops.io](mailto:tech@r2devops.io) and ask him a `read_registry` token for the frontend
+
 
 The terminal will start all services, you can ensure that they are all running :
 

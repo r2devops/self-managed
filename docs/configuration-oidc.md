@@ -17,11 +17,11 @@ If you have a group, search for it inside the Group menu and then on the sidebar
 ??? info "Create a group for your company"
     If you don't have a common group with your colleagues on GitLab, it is recommended to create one.
 
-    :fontawesome-solid-circle-info: As this application may be managed by other people of your team, it makes sense to share access to the OIDC access with other.
+    👉 As this application may be managed by other people of your team, it makes sense to share access to the OIDC access with other.
 
     1. Creating a group can be done, inside the menu bar by clicking on  `View all groups` and then press the blue `New Group` button. 
     ![Navigate group](images/naviguate-group.png)
-    1. Then create the group by filling the form with information.
+    2. Then create the group by filling the form with information.
     ![Create a group](images/create-group.png){width=400}
 
     *Don't forget to invite members with their email addresses.* 
@@ -32,25 +32,19 @@ Complete with the following information :
 
 * Name: `R2Devops self-hosted`  
 * Redirect URI : `https://<API_URL>/kratos/public/self-service/methods/oidc/callback/gitlab`  
+- [x] confidential
 * Scopes: `openid, email`  
 
 And click on `Create Application`.
 
 !!! info "API_URL"
-    The API_URL is the URL of your self-hosted R2Devops' API. The value should be copied from the variable `API_URL` in the `local.env` file with the correct URL.
+    The API_URL is the URL of your self-hosted R2Devops' API. The value should be coherent with the content of the variable `API_URL` in the `local.env`.
 
 Now you should see the following screen:
 
 ![Application](images/application_created_gitlab.png)
 
 #### Update the configuration
-
-??? note "Manipulation inside your server"
-    This step should be done inside your server. You can connect to your server using SSH with the following command:
-    ```bash
-    ssh <user>@<host>
-    ```
-    See [Requirements](/requirements/#ssh) for more information.
 
 Copy the `Application ID` and the `Secret` and paste them in the `kratos.yml` file under the GitLab provider section :
 

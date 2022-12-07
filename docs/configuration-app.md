@@ -3,24 +3,32 @@
 ### Install the application
 
 
-???+ warning "Server and non-Root user"
-
-    This step should be done inside your server. You can connect to your server using SSH with the following command:
-    ```bash
-    ssh <user>@<host>
-    ```
+???+ warning "Non-Root user"
     For permission reason perform the below commands with a **non-root user**, 👉 user should be different from `root`.
 
-    See [Requirements](/requirements/#ssh) for more information.
+
+#### Clone the repository 
 
 Once your system meet the requirements, you need to copy the repository inside the server :
 
 ```bash
-git clone https://gitlab.com/r2devops/self-hosted.git
+git clone https://r2devops:<REPOSITORY_TOKEN>@gitlab.com/r2devops/self-hosted.git
 
 ```
 
-Then move inside the project folder and launch the following commands : 
+??? important "REPOSITORY_TOKEN"
+    You can find the `REPOSITORY_TOKEN` in the mail we sent you.
+
+??? failure "I get a `git clone` error"
+    Make sure you are pasting the right token!
+
+    Otherwise write a mail to [tech@r2devops.io](mailto:tech@r2devops.io) and ask him a `read_repository` token for self-hosted
+
+
+
+#### Set permissions and variables
+
+Then launch the following commands : 
 
 ```bash 
 cd self-hosted
