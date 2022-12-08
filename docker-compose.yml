@@ -116,8 +116,12 @@ services:
   jobs_worker:
     <<: *jobs-common
     command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+    deploy:
+      mode: replicated
+      replicas: 2
     labels:
       - "traefik.enable=false"
+
   redis:
     image: redis:6
     restart: unless-stopped
