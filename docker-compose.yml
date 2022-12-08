@@ -1,7 +1,7 @@
 version: '3.9'
 
 x-jobs-common: &jobs-common
-    image: registry.gitlab.com/r2devops/jobs:10ce311e2459f27edc09f87a51ca4aec071b6300
+    image: registry.gitlab.com/r2devops/jobs:v1.0.1
     env_file: local.env
     restart: unless-stopped
     depends_on:
@@ -72,8 +72,7 @@ services:
   kratos:
       depends_on:
         - kratos-migrate
-        - mailhog
-      image: oryd/kratos:v0.8.0-alpha.3-sqlite
+      image: oryd/kratos:v0.8.2-alpha.1
       expose:
         - "4433"
         - "4434"
@@ -186,17 +185,15 @@ services:
     networks:
       - intranet
 
-  
-
   frontend:
-    image: registry.gitlab.com/r2devops/frontend:556f5235374e98b3c85739546658c4ba971a06df
+    image: frontend:v0.72.2-<customer> # TODO
     restart: unless-stopped
     env_file:
       - local.env
     expose:
-      - "3000"
+      - "80"
     labels:
-      - "traefik.http.routers.front.rule=Host(\"$FRONTEND_URL\")"
+      - "traefik.http.routers.front.rule=Host(`${FRONTEND_URL}`)"
       - "traefik.http.routers.front.entrypoints=websecure"
       - "traefik.http.routers.front.tls=true"
       - "traefik.http.routers.front.tls.certresolver=le"
