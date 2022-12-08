@@ -1,11 +1,14 @@
-version: v0.8.0-alpha.3
+version: v0.8.2-alpha.1
+
+dsn: sqlite:///var/lib/sqlite/db.sqlite?_fk=true
 
 serve:
   public:
+    base_url: https://<API_URL>/kratos/public # TODO
     cors:
       enabled: true
       allowed_origins:
-        - https://r2devops.io* # TODO
+        - http://<FRONTEND_URL> # TODO
       allowed_methods:
         - POST
         - GET
@@ -19,14 +22,13 @@ serve:
       exposed_headers:
         - Content-Type
         - Set-Cookie
-      #options_passthrough: true
-      debug: true
+      debug: false
 
 selfservice:
 
-  default_browser_return_url: https://r2devops.io/u/signin # TODO
+  default_browser_return_url: https://<FRONTEND_URL>/u/signin # TODO
   whitelisted_return_urls:
-    - https://r2devops.io # TODO
+    - http://<FRONTEND_URL> # TODO
 
   methods:
     password:
@@ -40,8 +42,8 @@ selfservice:
           - id: gitlab # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
             provider: gitlab
             # TODO : Paste your Application ID and Application secret here :
-            client_id: #Application ID
-            client_secret: #Secret
+            client_id: # Application ID
+            client_secret: # Secret
             mapper_url: file:///etc/config/kratos/oidc.gitlab.jsonnet
             scope:
               - openid
@@ -53,20 +55,22 @@ selfservice:
         oidc:
           hooks:
             - hook: session
+    login:
+      ui_url: http://<FRONTEND_URL>/u/signin # TODO
     error:
-      ui_url: https://r2devops.io # TODO
+      ui_url: http://<FRONTEND_URL> # TODO
     logout:
       after:
-        default_browser_return_url: https://r2devops.io # TODO
+        default_browser_return_url: http://<FRONTEND_URL> # TODO
     settings:
-      ui_url: https://r2devops.io/u/dashboard/profile
+      ui_url: http://<FRONTEND_URL>/u/dashboard/profile # TODO
 
 cookies:
-  domain: r2devops.io # TODO
+  domain: <DOMAIN_NAME> # TODO
 
 log:
   level: debug
-  format: json
+  format: text
   leak_sensitive_values: false
 
 identity:
