@@ -5,7 +5,7 @@ x-frontend-common: &frontend-common
 
 x-jobs-common: &jobs-common
     image: registry.gitlab.com/r2devops/jobs:v1.0.1
-    env_file: local.env
+    env_file: production.env
     restart: unless-stopped
     depends_on:
       - postgres
@@ -18,7 +18,7 @@ services:
     image: minio/minio:RELEASE.2022-11-17T23-20-09Z.fips
     restart: unless-stopped
     env_file:
-      - local.env
+      - production.env
     expose:
       - "9000"
       - "9001"
@@ -40,7 +40,7 @@ services:
   createbucket:
     image: minio/mc
     env_file:
-      - local.env
+      - production.env
     depends_on:
       - minio
     entrypoint: >
@@ -92,7 +92,7 @@ services:
           source: .
           target: /etc/config/kratos
       env_file:
-        - local.env
+        - production.env
       labels:
         - "traefik.http.routers.kratos.rule=Host(\"$KRATOS_URL_WITHOUT_PATH\")&&PathPrefix(\"$KRATOS_PATH\")"
         - "traefik.http.routers.kratos.middlewares=kratos-stripprefix"
@@ -109,7 +109,7 @@ services:
     expose:
       - "80"
     env_file:
-      - local.env
+      - production.env
     labels:
       - "traefik.http.routers.api.rule=Host(\"$API_URL\")"
       - "traefik.http.routers.api.entrypoints=websecure"
@@ -137,7 +137,7 @@ services:
     image: postgres:13
     restart: unless-stopped
     env_file:
-      - local.env
+      - production.env
     expose:
       - "5432"
     networks:
@@ -184,7 +184,7 @@ services:
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     env_file:
-      - local.env
+      - production.env
     volumes:
       - $PWD/acme.json:/acme.json
       - /var/run/docker.sock:/var/run/docker.sock
@@ -195,7 +195,7 @@ services:
     <<: *frontend-common
     restart: unless-stopped
     env_file:
-      - local.env
+      - production.env
     expose:
       - "80"
     labels:
