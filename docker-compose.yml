@@ -1,5 +1,8 @@
 version: '3.9'
 
+x-frontend-common: &frontend-common
+    image: registry.gitlab.com/r2devops/frontend:v0.73.3
+
 x-jobs-common: &jobs-common
     image: registry.gitlab.com/r2devops/jobs:v1.0.1
     env_file: local.env
@@ -189,7 +192,7 @@ services:
       - intranet
 
   frontend:
-    image: frontend:v0.72.2-<customer> # TODO
+    <<: *frontend-common
     restart: unless-stopped
     env_file:
       - local.env
