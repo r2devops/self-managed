@@ -41,6 +41,7 @@ selfservice:
         providers:
           - id: gitlab # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
             provider: gitlab
+            issuer_url: https://<GITLAB_INSTANCE_DOMAIN> # TODO
             # TODO : Paste your Application ID and Application secret here :
             client_id: # Application ID
             client_secret: # Secret
