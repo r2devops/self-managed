@@ -4,11 +4,8 @@ dsn: sqlite:///var/lib/sqlite/db.sqlite?_fk=true
 
 serve:
   public:
-    base_url: https://<API_URL>/kratos/public # TODO
     cors:
       enabled: true
-      allowed_origins:
-        - https://<FRONTEND_URL> # TODO
       allowed_methods:
         - POST
         - GET
@@ -26,10 +23,6 @@ serve:
 
 selfservice:
 
-  default_browser_return_url: https://<FRONTEND_URL>/u/signin # TODO
-  whitelisted_return_urls:
-    - https://<FRONTEND_URL> # TODO
-
   methods:
     password:
       enabled: false
@@ -42,9 +35,8 @@ selfservice:
           - id: gitlab # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
             provider: gitlab
             issuer_url: https://<GITLAB_INSTANCE_DOMAIN> # TODO
-            # TODO : Paste your Application ID and Application secret here :
-            client_id: # Application ID
-            client_secret: # Secret
+            client_id: <APPLICATION_ID> # TODO
+            client_secret: <APPLICATION_SECRET> # TODO
             mapper_url: file:///etc/config/kratos/oidc.gitlab.jsonnet
             scope:
               - openid
@@ -56,18 +48,6 @@ selfservice:
         oidc:
           hooks:
             - hook: session
-    login:
-      ui_url: https://<FRONTEND_URL>/u/signin # TODO
-    error:
-      ui_url: https://<FRONTEND_URL> # TODO
-    logout:
-      after:
-        default_browser_return_url: https://<FRONTEND_URL> # TODO
-    settings:
-      ui_url: https://<FRONTEND_URL>/u/dashboard/profile # TODO
-
-cookies:
-  domain: <DOMAIN_NAME> # TODO
 
 log:
   level: debug
@@ -76,14 +56,6 @@ log:
 
 identity:
   default_schema_url: file:///etc/config/kratos/identity.schema.json
-
-secrets:
-  cookie:
-    - replace_me_by_secret # TODO. Secret length must be <=32
-  cipher:
-    - replace_me_by_secret # TODO. Secret length must be ==32
-  default:
-    - replace_me_by_secret # TODO. Secret length must be >=16
 
 courier:
   smtp:
