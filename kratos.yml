@@ -77,6 +77,14 @@ log:
 identity:
   default_schema_url: file:///etc/config/kratos/identity.schema.json
 
+secrets:
+  cookie:
+    - replace_me_by_secret # TODO. Secret length must be <=32
+  cipher:
+    - replace_me_by_secret # TODO. Secret length must be ==32
+  default:
+    - replace_me_by_secret # TODO. Secret length must be >=16
+
 courier:
   smtp:
     connection_uri: smtp://mailhog:1025
