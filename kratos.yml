@@ -8,7 +8,7 @@ serve:
     cors:
       enabled: true
       allowed_origins:
-        - http://<FRONTEND_URL> # TODO
+        - https://<FRONTEND_URL> # TODO
       allowed_methods:
         - POST
         - GET
@@ -28,7 +28,7 @@ selfservice:
 
   default_browser_return_url: https://<FRONTEND_URL>/u/signin # TODO
   whitelisted_return_urls:
-    - http://<FRONTEND_URL> # TODO
+    - https://<FRONTEND_URL> # TODO
 
   methods:
     password:
@@ -56,14 +56,14 @@ selfservice:
           hooks:
             - hook: session
     login:
-      ui_url: http://<FRONTEND_URL>/u/signin # TODO
+      ui_url: https://<FRONTEND_URL>/u/signin # TODO
     error:
-      ui_url: http://<FRONTEND_URL> # TODO
+      ui_url: https://<FRONTEND_URL> # TODO
     logout:
       after:
-        default_browser_return_url: http://<FRONTEND_URL> # TODO
+        default_browser_return_url: https://<FRONTEND_URL> # TODO
     settings:
-      ui_url: http://<FRONTEND_URL>/u/dashboard/profile # TODO
+      ui_url: https://<FRONTEND_URL>/u/dashboard/profile # TODO
 
 cookies:
   domain: <DOMAIN_NAME> # TODO

@@ -1,5 +1,5 @@
 local claims = {
-  email_verified: false
+  email_verified: false,
 } + std.extVar('claims');
 
 {
