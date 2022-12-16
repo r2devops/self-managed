@@ -167,6 +167,7 @@ services:
       - --providers.docker=true
       - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.le.acme.email=$CERTIFICATE_EMAIL
+      - --certificatesresolvers.le.acme.storage=/acme/acme.json
       - --certificatesresolvers.le.acme.tlschallenge=true
     labels:
       - "traefik.enable=false"
@@ -182,6 +183,7 @@ services:
       - production.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-acme:/acme
     networks:
       - intranet
 
@@ -208,3 +210,4 @@ volumes:
   minio-data:
   postgres-data:
   minio-data_config:
+  traefik-acme:
