@@ -4,7 +4,7 @@ x-frontend-common: &frontend-common
     image: registry.gitlab.com/r2devops/frontend:<COMPANY_TAG>
 
 x-jobs-common: &jobs-common
-    image: registry.gitlab.com/r2devops/jobs:v1.0.2
+    image: registry.gitlab.com/r2devops/jobs:v1.0.4
     env_file: production.env
     restart: unless-stopped
     depends_on:
