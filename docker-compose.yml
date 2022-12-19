@@ -57,11 +57,9 @@ services:
 
   kratos-migrate:
     image: oryd/kratos:v0.8.2-alpha.1
+    env_file:
+      - production.env
     volumes:
-      - type: volume
-        source: kratos-sqlite
-        target: /var/lib/sqlite
-        read_only: false
       - type: bind
         source: .
         target: /etc/config/kratos
@@ -80,10 +78,6 @@ services:
       restart: unless-stopped
       command: serve -c /etc/config/kratos/kratos.yml --watch-courier
       volumes:
-        - type: volume
-          source: kratos-sqlite
-          target: /var/lib/sqlite
-          read_only: false
         - type: bind
           source: .
           target: /etc/config/kratos
@@ -128,6 +122,22 @@ services:
       - "6379"
     networks:
       - intranet
+
+  postgres_kratos:
+    image: postgres:13
+    restart: unless-stopped
+    env_file:
+      - production.env
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=$KRATOS_POSTGRES_USER
+      - POSTGRES_PASSWORD=$KRATOS_POSTGRES_PASSWORD
+      - POSTGRES_DB=$KRATOS_POSTGRES_DB
+    networks:
+      - intranet
+    volumes:
+      - postgres_kratos-data:/var/lib/postgresql/data
 
   postgres:
     image: postgres:13
@@ -206,8 +216,8 @@ networks:
   intranet:
 
 volumes:
-  kratos-sqlite:
   minio-data:
   postgres-data:
+  postgres_kratos-data:
   minio-data_config:
   traefik-acme:
