@@ -28,17 +28,6 @@ selfservice:
       enabled: true
     oidc:
       enabled: true
-      config:
-        providers:
-          - id: gitlab # this is `<provider-id>` in the Authorization callback URL. DO NOT CHANGE IT ONCE SET!
-            provider: gitlab
-            issuer_url: https://<GITLAB_INSTANCE_DOMAIN> # TODO
-            client_id: <APPLICATION_ID> # TODO
-            client_secret: <APPLICATION_SECRET> # TODO
-            mapper_url: file:///etc/config/kratos/oidc.gitlab.jsonnet
-            scope:
-              - openid
-              - email
 
   flows:
     registration:

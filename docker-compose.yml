@@ -118,6 +118,7 @@ services:
           target: /etc/config/kratos
       environment:
         - DSN=$KRATOS_DSN
+        - SELFSERVICE_METHODS_OIDC_CONFIG_PROVIDERS=$GITLAB_OIDC
         - SERVE_PUBLIC_BASE_URL=https://$KRATOS_URL
         - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://$FRONTEND_URL*
         - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_URL/u/signin
