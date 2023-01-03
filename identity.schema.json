@@ -110,10 +110,6 @@
           "minLength": 3,
           "maxLength": 400,
           "title": "Bio"
-        },
-        "goodies": {
-          "type": "string",
-          "title": "Goodies code"
         }
       },
       "required": [
