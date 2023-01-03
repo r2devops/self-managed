@@ -3,40 +3,40 @@ name: "r2devops"
 
 x-jobs-common: &jobs-common
     image: registry.gitlab.com/r2devops/jobs:$BACKEND_IMAGE_TAG
+    env_file: .env
     environment:
-      - JOBS_LISTEN_ADDR="0.0.0.0"
-      - JOBS_LISTEN_PORT="80"
-      - JOBS_CORS_ORIGIN="https://$DOMAIN_NAME"
-      - JOBS_DB_HOST="postgres"
-      - JOBS_DB_PORT="5432"
-      - JOBS_DB_SSLMODE="disable"
-      - JOBS_DB_TIMEZONE="Europe/Paris"
-      - JOBS_API_DOMAIN="https://$API_URL/job"
-      - JOBS_AGENT="R2Devops-jobs/1.0.0/go"
-      - JOBS_AP_FILE_MAX_SIZE="100000"
-      - JOBS_AP_FILE_MAX_NUMBER="250"
-      - JOBS_AP_FILE_CLONE_TIMEOUT="10000000000"
-      - SERVICE_KRATOS_URL="https://$KRATOS_URL"
-      - JOBS_KRATOS_DEBUG="false"
-      - LOG_LEVEL="info"
-      - LOG_FORMATTER="text"
-      - S3_TOKEN_KEY=""
+      - JOBS_LISTEN_ADDR=0.0.0.0
+      - JOBS_LISTEN_PORT=80
+      - JOBS_CORS_ORIGIN=https://$DOMAIN_NAME
+      - JOBS_DB_HOST=postgres
+      - JOBS_DB_PORT=5432
+      - JOBS_DB_SSLMODE=disable
+      - JOBS_DB_TIMEZONE=Europe/Paris
+      - JOBS_API_DOMAIN=https://$API_URL/job
+      - JOBS_AGENT=R2Devops-jobs/1.0.0/go
+      - JOBS_AP_FILE_MAX_SIZE=100000
+      - JOBS_AP_FILE_MAX_NUMBER=250
+      - JOBS_AP_FILE_CLONE_TIMEOUT=10000000000
+      - SERVICE_KRATOS_URL=https://$KRATOS_URL
+      - JOBS_KRATOS_DEBUG=false
+      - LOG_LEVEL=info
+      - LOG_FORMATTER=text
+      - S3_TOKEN_KEY=
       - S3_HOST=minio:9000
-      - S3_REGION="us-east-1"
-      - S3_DISABLE_SSL="true"
-      - S3_FORCE_PATH_STYLE="true"
-      - JOBS_REDIS_HOST="redis"
-      - JOBS_REDIS_PORT="6379"
-      - JOBS_REDIS_DB="0"
-      - JOBS_REDIS_USER=""
-      - JOBS_REDIS_PASSWORD=""
-      - JOBS_REDIS_SET_NAMESPACES="namespaces"
-      - JOBS_REDIS_SET_NAMESPACES_TTL="10m"
-      - JOBS_REDIS_SET_ANALYSIS_TTL="744h"
-      - JOBS_REDIS_SET_JOB_TODO="jobs_set_todo"
-      - JOBS_REDIS_SET_JOB_ANALYZED="jobs_set_analyzed"
-      - JOBS_REDIS_SET_JOB_PROCESSING="jobs_set_processing"
-      - JOBS_REDIS_SET_JOB_MAX_SIZE="1000"
+      - S3_REGION=us-east-1
+      - S3_DISABLE_SSL=true
+      - S3_FORCE_PATH_STYLE=true
+      - JOBS_REDIS_HOST=redis
+      - JOBS_REDIS_PORT=6379
+      - JOBS_REDIS_DB=0
+      - JOBS_REDIS_USER=default
+      - JOBS_REDIS_SET_NAMESPACES=namespaces
+      - JOBS_REDIS_SET_NAMESPACES_TTL=10m
+      - JOBS_REDIS_SET_ANALYSIS_TTL=744h
+      - JOBS_REDIS_SET_JOB_TODO=jobs_set_todo
+      - JOBS_REDIS_SET_JOB_ANALYZED=jobs_set_analyzed
+      - JOBS_REDIS_SET_JOB_PROCESSING=jobs_set_processing
+      - JOBS_REDIS_SET_JOB_MAX_SIZE=1000
     restart: unless-stopped
     depends_on:
       - postgres
@@ -49,9 +49,9 @@ services:
     image: minio/minio:RELEASE.2022-11-17T23-20-09Z.fips
     restart: unless-stopped
     environment:
-      - MINIO_ROOT_USER="$S3_ACCESS_KEY"
-      - MINIO_ROOT_PASSWORD="$S3_SECRET_KEY"
-      - MINIO_BUCKET="$S3_BUCKET"
+      - MINIO_ROOT_USER=$S3_ACCESS_KEY
+      - MINIO_ROOT_PASSWORD=$S3_SECRET_KEY
+      - MINIO_BUCKET=$S3_BUCKET
     expose:
       - "9000"
       - "9001"
@@ -73,9 +73,9 @@ services:
   createbucket:
     image: minio/mc
     environment:
-      - MINIO_ROOT_USER="$S3_ACCESS_KEY"
-      - MINIO_ROOT_PASSWORD="$S3_SECRET_KEY"
-      - MINIO_BUCKET="$S3_BUCKET"
+      - MINIO_ROOT_USER=$S3_ACCESS_KEY
+      - MINIO_ROOT_PASSWORD=$S3_SECRET_KEY
+      - MINIO_BUCKET=$S3_BUCKET
     depends_on:
       - minio
     entrypoint: >
@@ -93,7 +93,7 @@ services:
   kratos-migrate:
     image: oryd/kratos:v0.8.2-alpha.1
     environment:
-      - DSN="$KRATOS_DSN"
+      - DSN=$KRATOS_DSN
     volumes:
       - type: bind
         source: .
@@ -117,19 +117,19 @@ services:
           source: .
           target: /etc/config/kratos
       environment:
-        - DSN="$KRATOS_DSN"
-        - SERVE_PUBLIC_BASE_URL="https://$KRATOS_URL"
-        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS="https://$FRONTEND_URL*"
-        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL="https://$FRONTEND_URL/u/signin"
-        - SELFSERVICE_WHITELISTED_RETURN_URLS="https://$FRONTEND_URL"
-        - SELFSERVICE_FLOWS_ERROR_UI_URL="https://$FRONTEND_URL"
-        - SELFSERVICE_FLOWS_LOGIN_UI_URL="https://$FRONTEND_URL/u/signin"
-        - SELFSERVICE_FLOWS_SETTINGS_UI_URL="https://$FRONTEND_URL/u/dashboard/profile"
-        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL="https://$FRONTEND_URL"
-        - COOKIES_DOMAIN="$DOMAIN_NAME"
-        - SECRETS_COOKIE="$KRATOS_SECRETS_COOKIE"
-        - SECRETS_CIPHER="$KRATOS_SECRETS_CIPHER"
-        - SECRETS_DEFAULT="$KRATOS_SECRETS_DEFAULT"
+        - DSN=$KRATOS_DSN
+        - SERVE_PUBLIC_BASE_URL=https://$KRATOS_URL
+        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://$FRONTEND_URL*
+        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_URL/u/signin
+        - SELFSERVICE_WHITELISTED_RETURN_URLS=https://$FRONTEND_URL
+        - SELFSERVICE_FLOWS_ERROR_UI_URL=https://$FRONTEND_URL
+        - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://$FRONTEND_URL/u/signin
+        - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://$FRONTEND_URL/u/dashboard/profile
+        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_URL
+        - COOKIES_DOMAIN=$DOMAIN_NAME
+        - SECRETS_COOKIE=$KRATOS_SECRETS_COOKIE
+        - SECRETS_CIPHER=$KRATOS_SECRETS_CIPHER
+        - SECRETS_DEFAULT=$KRATOS_SECRETS_DEFAULT
         - LOG_LEVEL=info
         - LOG_FORMAT=text
       labels:
@@ -195,9 +195,9 @@ services:
     image: postgres:13
     restart: unless-stopped
     environment:
-      - POSTGRES_USER="$JOBS_DB_USER"
-      - POSTGRES_PASSWORD="$JOBS_DB_PASSWORD"
-      - POSTGRES_DB="$JOBS_DB_NAME"
+      - POSTGRES_USER=$JOBS_DB_USER
+      - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
+      - POSTGRES_DB=$JOBS_DB_NAME
     expose:
       - "5432"
     networks:
