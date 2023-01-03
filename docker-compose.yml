@@ -1,7 +1,5 @@
 version: '3.9'
-
-x-frontend-common: &frontend-common
-    image: registry.gitlab.com/r2devops/frontend:<COMPANY_TAG>
+name: "r2devops"
 
 x-jobs-common: &jobs-common
     image: registry.gitlab.com/r2devops/jobs:v1.0.5
