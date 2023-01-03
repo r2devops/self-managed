@@ -181,6 +181,11 @@ services:
   redis:
     image: redis:6
     restart: unless-stopped
+    env_file:
+      - .env
+    command:
+      - redis-server
+      - --requirepass $JOBS_REDIS_PASSWORD
     expose:
       - "6379"
     networks:
