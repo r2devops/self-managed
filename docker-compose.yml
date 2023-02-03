@@ -32,11 +32,9 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_USER=default
       - JOBS_REDIS_SET_NAMESPACES=namespaces
       - JOBS_REDIS_SET_NAMESPACES_TTL=10m
-      - JOBS_REDIS_SET_ANALYSIS_TTL=744h
-      - JOBS_REDIS_SET_JOB_TODO=jobs_set_todo
-      - JOBS_REDIS_SET_JOB_ANALYZED=jobs_set_analyzed
-      - JOBS_REDIS_SET_JOB_PROCESSING=jobs_set_processing
-      - JOBS_REDIS_SET_JOB_MAX_SIZE=1000
+      - JOBS_REDIS_SET_TPL_SYNC=templates_sync
+      - JOBS_REDIS_SET_TPL_PROCESSING=templates_processing
+      - JOBS_REDIS_SET_TPL_MAX_SIZE=1000
     restart: unless-stopped
     depends_on:
       - postgres
