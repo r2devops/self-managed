@@ -249,6 +249,10 @@ services:
   frontend:
     image: registry.gitlab.com/r2devops/frontend:$FRONTEND_IMAGE_TAG
     restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./config.json
+        target: /usr/share/nginx/html/environments/config.json
     expose:
       - "80"
     labels:
