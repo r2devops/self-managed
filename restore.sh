@@ -24,12 +24,20 @@ if [ -f $BACKUP_FILE ]; then
     BACKUP_DIR=$(echo $BACKUP_FILE | cut -f 1 -d '.')
     tar xf $BACKUP_FILE -C $(dirname $BACKUP_FILE)
 
-    echo "Restoring the .env file... (1/5)"
+    echo "Restoring the .env file... (1/6)"
     if cp $BACKUP_DIR/.env ./.env; then
         echo "✅ The .env file has been restored"
     	source .env
     else
         echo "❌ Error while restoring the .env file"
+	exit 1
+    fi
+
+    echo "Restoring the config.json file... (2/6)"
+    if cp $BACKUP_DIR/config.json ./config.json; then
+        echo "✅ The config.json file has been restored"
+    else
+        echo "❌ Error while restoring the config.json file"
 	exit 1
     fi
 
@@ -41,7 +49,7 @@ if [ -f $BACKUP_FILE ]; then
 	exit 1
     fi
 
-    echo "Restoring the jobs database... (2/5)"
+    echo "Restoring the jobs database... (3/6)"
     if docker compose start postgres && sleep 2; then
         echo "Postgres service has been started"
     else
@@ -55,7 +63,7 @@ if [ -f $BACKUP_FILE ]; then
 	exit 1
     fi
 
-    echo "Restoring the kratos database... (3/5)"
+    echo "Restoring the kratos database... (4/6)"
     if docker compose start postgres_kratos && sleep 2; then
         echo "Postgres_kratos service has been started"
     else
@@ -68,14 +76,14 @@ if [ -f $BACKUP_FILE ]; then
       echo "❌ Error while restoring kratos database"
     fi
 
-    echo "Restoring the Minio bucket... (4/5)"
+    echo "Restoring the Minio bucket... (5/6)"
     if docker run --rm --network=${PROJECT_NAME}_intranet --volumes-from ${PROJECT_NAME}-minio-1 -v $BACKUP_DIR:/backup -it alpine:$ALPINE_VERSION /bin/sh -c "rm -rf /export/$S3_BUCKET/*; cd /export/$S3_BUCKET/; tar xf /backup/minio_backup.tar"; then
         echo "✅ Minio bucket has been restored"
     else
         echo "❌ Error while restoring Minio bucket"
     fi
 
-    echo "Restoring the certificate... (5/5)"
+    echo "Restoring the certificate... (6/6)"
     if docker run --rm --network=${PROJECT_NAME}_intranet --volumes-from ${PROJECT_NAME}-traefik-1 -v $BACKUP_DIR:/backup -it alpine:$ALPINE_VERSION /bin/sh -c "cp /backup/acme.json acme"; then
         echo "✅ The certificate has been restored"
     else

@@ -52,14 +52,22 @@ else
 fi
 
 # Backup the `.env` file:
-echo "Saving the .env file... (6/6)"
+echo "Saving the .env file... (5/6)"
 if cp .env $BACKUP_PATH; then
-    echo "✅ the .env file has been saved"
+    echo "✅ The .env file has been saved"
 else
     echo "❌ Error while saving the .env file"
 fi
 
-#Generate an archive of all file with the date of the day
+# Backup the `config.json` file:
+echo "Saving the config.json file... (6/6)"
+if cp config.json $BACKUP_PATH; then
+    echo "✅ The config.json file has been saved"
+else
+    echo "❌ Error while saving the config.json file"
+fi
+
+# Generate an archive of all file with the date of the day
 cd $BACKUPS_DIR
 tar cf $BACKUP_NAME.tar $BACKUP_NAME
 cd ..
