@@ -36,6 +36,9 @@ selfservice:
           hooks:
             - hook: session
 
+session:
+  lifespan: 720h
+
 log:
   level: debug
   format: text
