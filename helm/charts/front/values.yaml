@@ -1,0 +1,55 @@
+image:
+  registry: registry.gitlab.com/r2devops/frontend
+  tag: v0.83.7
+  pullPolicy: IfNotPresent
+  port: 80
+
+imagePullSecrets:
+  - name: secret_name
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "TOREPLACE"
+      paths:
+        - "/"
+  tls:
+    - secretName: front-tls
+      hosts:
+        - "TOREPLACE"
+  annotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+deployment:
+  annotations: {}
+  extraVolumes: []
+  # - name: my-volume
+  #   secret:
+  #     secretName: my-secret
+  extraVolumeMounts: []
+  # - name: my-volume
+  #   mountPath: /etc/secrets/my-secret
+  #   readOnly: true
+
+prometheus:
+  enabled: false
+  port: 9090
+
+resources:
+  limits:
+    memory: 256Mi
+    cpu: 300m
+  requests:
+    memory: 128Mi
+    cpu: 150m
+
+hpa:
+  min: 1
+  max: 1
+
+tolerations: []
+
+affinity: {}

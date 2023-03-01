@@ -1,0 +1,14 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "front.fullname" . }}
+  labels:
+{{ include "front.labels" . | indent 4 }}
+spec:
+    minReplicas: {{ .Values.hpa.min }}
+    maxReplicas: {{ .Values.hpa.max }}
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: {{ include "front.fullname" . }}
+    targetCPUUtilizationPercentage: 75
