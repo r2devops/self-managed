@@ -1,0 +1,33 @@
+apiVersion: v2
+name: r2devops
+description: Helm chart for R2Devops
+type: application
+version: 0.1.0
+appVersion: "0.83.7"
+dependencies:
+  # ref. https://k8s.ory.sh/helm/kratos.html
+  - name: kratos
+    version: 0.21.5 # appVersion: v0.8.0-alpha.3
+    repository: https://k8s.ory.sh/helm/charts
+    condition: redis.dependency.enabled
+  # ref. https://github.com/minio/minio/tree/master/helm/minio
+  - name: minio
+    version: 5.0.9 # appVersion: RELEASE.2023-04-28T18-11-17Z
+    repository: https://charts.min.io
+    condition: minio.dependency.enabled
+  # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis
+  - name: redis
+    version: 16.13.2 # appVersion: 6.2.7
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.dependency.enabled
+  # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql
+  - name: postgresql
+    version: 11.6.2 # appVersion: 14.3.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.dependency.enabled
+maintainers:
+  - name: Thomas Boni
+    email: thomasboni13@gmail.com
+  - name: Bertrand Thomas
+    email: bertrand@devpro.fr
+home: https://gitlab.com/r2devops/self-managed/charts/r2devops

@@ -1,0 +1,15 @@
+dependencies:
+- name: kratos
+  repository: https://k8s.ory.sh/helm/charts
+  version: 0.21.5
+- name: minio
+  repository: https://charts.min.io
+  version: 5.0.9
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.13.2
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 11.6.2
+digest: sha256:c42cc5b69ffd4f105b4b0788f6481695c77264a029be547bf631609042fcfca5
+generated: "2023-05-23T21:47:11.099131221+02:00"

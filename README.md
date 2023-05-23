@@ -31,7 +31,7 @@ docker compose up
 
 ### Kubernetes with Helm
 
-TODO
+Use the [Chart](charts/r2devops/README.md).
 
 ## Operations
 

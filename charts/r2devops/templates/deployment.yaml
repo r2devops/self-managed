@@ -1,0 +1,133 @@
+{{- $applications := list .Values.front .Values.jobs .Values.worker -}}
+{{ range $applications }}
+{{- if .enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  labels:
+    app: {{ .name }}
+    app.kubernetes.io/name: {{ .name }}
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+      app.kubernetes.io/name: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+        app.kubernetes.io/name: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}:{{ .tag }}
+          imagePullPolicy: Always
+          {{- if .command }}
+          command: {{ .command }}
+          {{- command }}
+          {{- if .args }}
+          args: {{ .args }}
+          {{- args }}
+          {{- if .port }}
+          ports:
+            - name: http
+              containerPort: {{ .port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ .livenessEndpoint }}
+              port: http
+          readinessProbe:
+            httpGet:
+              path: {{ .readinesspoint }}
+              port: http
+          {{- end }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          env:
+          {{- if .extraEnv }}
+            {{- toYaml .extraEnv | nindent 12 }}
+          {{- end }}
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            {{- if eq .type "backend" }}
+            - name: JOBS_LISTEN_ADDR
+              value: "0.0.0.0"
+            - name: JOBS_LISTEN_PORT
+              value: "3000"
+            - name: JOBS_DB_HOST
+              value: "TOREPLACE"
+              value: "https://{{ default postgresql $.Values.postgresql.custom.host }}"
+            - name: JOBS_DB_PORT
+              value: "{{ default 5432 $.Values.postgresql.containerPorts.postgresql }}"
+            - name: JOBS_DB_NAME
+              value: "{{ $.Values.postgresql.custom.dbName }}"
+            - name: JOBS_DB_SSLMODE
+              value: "enable"
+            - name: JOBS_DB_TIMEZONE
+              value: "Europe/Paris"
+            - name: JOBS_GITLAB_URL
+              value: "https://gitlab.com"
+            - name: JOBS_AGENT
+              value: "R2Devops-jobs/1.0.0/go"
+            - name: JOBS_KRATOS_DEBUG
+              value: "false"
+            - name: JOBS_API_DOMAIN
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}"
+            - name: JOBS_CORS_ORIGIN
+              value: "https://{{ default $.Values.front.name $.Values.front.host }}"
+            - name: SERVICE_KRATOS_URL
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/kratos/public/"
+            - name: S3_HOST
+              value: "TOREPLACE"
+            - name: S3_REGION
+              value: "TOREPLACE"
+            - name: S3_BUCKET
+              value: "jobfiles"
+            - name: S3_DISABLE_SSL
+              value: "false"
+            - name: S3_FORCE_PATH_STYLE
+              value: "true"
+            - name: JOBS_REDIS_HOST
+              value: "https://{{ default redis-master $.Values.redis.custom.host }}"
+            - name: JOBS_REDIS_PORT
+              value: "{{ default 6379 $.Values.redis.master.containerPorts.redis }}"
+            - name: JOBS_REDIS_DB
+              value: "0"
+            - name: JOBS_REDIS_USER
+              value: "default"
+            - name: JOBS_REDIS_SET_NAMESPACES
+              value: "namespaces"
+            - name: JOBS_REDIS_SET_NAMESPACES_TTL
+              value: "720h"
+            - name: JOBS_REDIS_SET_TPL_SYNC
+              value: "templates_sync"
+            - name: JOBS_REDIS_SET_TPL_PROCESSING
+              value: "templates_processing"
+            - name: JOBS_REDIS_SET_TPL_MAX_SIZE
+              value: "1000"
+            - name: JOBS_AP_FILE_MAX_SIZE
+              value: "100000"
+            - name: JOBS_AP_FILE_MAX_NUMBER
+              value: "250"
+            - name: JOBS_AP_FILE_CLONE_TIMEOUT
+              value: "10000000000"
+            - name: JOBS_DB_USER
+              value: "TOREPLACE"
+            - name: JOBS_DB_PASSWORD
+              value: "{{ $.Values.postgresql.global.postgresql.auth.postgresPassword }}"
+            - name: S3_ACCESS_KEY
+              value: "TOREPLACE"
+            - name: S3_SECRET_KEY
+              value: "TOREPLACE"
+            - name: JOBS_REDIS_PASSWORD
+              value: "{{ $.Values.redis.auth.password }}"
+            {{- end }}
+{{- end }}
+{{ end }}
