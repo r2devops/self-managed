@@ -20,7 +20,6 @@ serve:
       debug: false
 
 selfservice:
-
   methods:
     password:
       enabled: false
@@ -28,7 +27,6 @@ selfservice:
       enabled: true
     oidc:
       enabled: true
-
   flows:
     registration:
       after:

@@ -98,7 +98,7 @@ services:
       - DSN=$KRATOS_DSN
     volumes:
       - type: bind
-        source: .
+        source: ./.docker/kratos
         target: /etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: on-failure
@@ -116,7 +116,7 @@ services:
       command: serve -c /etc/config/kratos/kratos.yml --watch-courier
       volumes:
         - type: bind
-          source: .
+          source: ./.docker/kratos
           target: /etc/config/kratos
       environment:
         - DSN=$KRATOS_DSN
@@ -256,7 +256,7 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: ./config.json
+        source: ./.docker/r2devops/config.json
         target: /usr/share/nginx/html/environments/config.json
     expose:
       - "80"
