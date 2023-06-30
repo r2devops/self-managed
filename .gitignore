@@ -2,3 +2,4 @@
 config.json
 backups/*
 **/charts/*.tgz
+temp.*

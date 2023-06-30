@@ -15,6 +15,17 @@ helm upgrade --install r2devops ####/r2devops --create-namespace \
 kubectl get pod -n r2devops
 ```
 
+## Design
+
+![R2Devops components](assets/images/r2devops-containers.svg)
+
+R2Devops relies on the following components:
+
+* [Kratos](https://www.ory.sh/kratos/)
+* [MinIO](https://min.io/)
+* [Redis](https://redis.io/)
+* [PostgreSQL](https://www.postgresql.org/)
+
 ## Going further
 
 * [Contributing](CONTIBUTING.md)
