@@ -18,7 +18,7 @@ helm search repo -l [kratos|minio|redis|postgresql] --versions
 helm dependency update
 ```
 
-## How to create or update the chart
+## How to check chart code quality
 
 ```bash
 # checks code style
@@ -41,7 +41,7 @@ kubectl create ns r2devops
 kubectl create secret docker-registry regcred --docker-server=<r2devops-registry-server> --docker-username=<username> --docker-password=<token> -n r2devops
 ```
 
-### Sample with a given password
+### Sample with all charts
 
 ```bash
 # retrieves public IP
@@ -52,10 +52,11 @@ NGINX_PUBLIC_IP=`kubectl get service -n ingress-nginx ingress-nginx-controller -
 # applies the manifest (add "--debug > output.yaml" in case of issue)
 helm upgrade --install r2devops . -f values.yaml --create-namespace \
   --set kratos.dependency.enabled=false \
-  --set minio.dependency.enabled=false \
-  --set postgresql.dependency.enabled=true --set postgresql.custom.host=r2devops-postgresql \
-  --set redis.dependency.enabled=true --set redis.custom.host=r2devops-redis-master \
-  --namespace r2devops
+  --set minio.dependency.enabled=true,minio.custom.host=r2devops-minio \
+  --set postgresql.dependency.enabled=true,postgresql.custom.host=r2devops-postgresql \
+  --set redis.dependency.enabled=true,redis.custom.host=r2devops-redis-master \
+  --namespace r2devops \
+  --debug
 
 # cleans up
 helm uninstall r2devops -n r2devops

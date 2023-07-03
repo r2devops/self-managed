@@ -67,6 +67,20 @@ kratos:
 minio:
   dependency:
     enabled: false
+  custom:
+    host: ""
+    accessKey: ""
+    secretKey: ""
+  resources:
+    requests:
+      memory: 512Mi
+  replicas: 1
+  mode: standalone
+  persistence:
+    enabled: true
+    size: 10Gi
+  rootUser: admin
+  rootPassword: pasWd8char
 
 # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 postgresql:
