@@ -29,7 +29,7 @@ spec:
   tls:
     - hosts:
         - {{ .host | quote }}
-      secretName: {{ .tls.secretName }}
+      secretName: {{ default (printf "%s-%s" .name "tls") .tls.secretName }}
   {{- end }}
 {{- end }}
 {{ end }}

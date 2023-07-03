@@ -62,7 +62,7 @@ spec:
             - name: JOBS_LISTEN_PORT
               value: "3000"
             - name: JOBS_DB_HOST
-              value: "{{ default "postgresql" $.Values.postgresql.custom.host }}"
+              value: "{{ default (printf "%s-%s" $.Release.Name "postgresql") $.Values.postgresql.custom.host }}"
             - name: JOBS_DB_PORT
               value: "{{ default 5432 $.Values.postgresql.containerPorts.postgresql }}"
             - name: JOBS_DB_NAME
@@ -84,7 +84,7 @@ spec:
             - name: SERVICE_KRATOS_URL
               value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/kratos/public/"
             - name: S3_HOST
-              value: "{{ default "minio" $.Values.minio.custom.host }}"
+              value: "{{ default (printf "%s-%s" $.Release.Name "minio") $.Values.minio.custom.host }}"
             - name: S3_REGION
               value: "us-east-1"
             - name: S3_BUCKET
@@ -94,7 +94,7 @@ spec:
             - name: S3_FORCE_PATH_STYLE
               value: "true"
             - name: JOBS_REDIS_HOST
-              value: "{{ default "redis-master" $.Values.redis.custom.host }}"
+              value: "{{ default (printf "%s-%s" $.Release.Name "redis-master") $.Values.redis.custom.host }}"
             - name: JOBS_REDIS_PORT
               value: "{{ default 6379 $.Values.redis.master.containerPorts.redis }}"
             - name: JOBS_REDIS_DB
@@ -129,6 +129,6 @@ spec:
               value: "{{ $.Values.redis.auth.password }}"
             {{- end }}
       imagePullSecrets:
-        - name: regcred
+        - name: {{ $.Values.registry.secretName }}
 {{- end }}
 {{ end }}

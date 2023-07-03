@@ -38,7 +38,7 @@ helm template r2devops . -f values.yaml \
 
 ```bash
 kubectl create ns r2devops
-kubectl create secret docker-registry regcred --docker-server=<r2devops-registry-server> --docker-username=<username> --docker-password=<token> -n r2devops
+kubectl create secret docker-registry r2devops-registry --docker-server=<r2devops-registry-server> --docker-username=<username> --docker-password=<token> -n r2devops
 ```
 
 ### Sample with all charts
@@ -47,17 +47,17 @@ kubectl create secret docker-registry regcred --docker-server=<r2devops-registry
 # retrieves public IP
 NGINX_PUBLIC_IP=`kubectl get service -n ingress-nginx ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
 
-# TODO: set release name and replace in the command line (and review values.yaml), do the same for the secret name (regcred)
-
 # applies the manifest (add "--debug > output.yaml" in case of issue)
 helm upgrade --install r2devops . -f values.yaml --create-namespace \
-  --set front.host=r2devops.${NGINX_PUBLIC_IP}.sslip.io,front.tls.secretName=r2devops-front-tls \
-  --set jobs.host=r2devops-jobs.${NGINX_PUBLIC_IP}.sslip.io,jobs.tls.secretName=r2devops-jobs-tls \
-  --set ingress.enabled=true,ingress.className=nginx,ingress.annotations.'cert-manager\.io/cluster-issuer'=letsencrypt-prod \
+  --set front.host=r2devops.${NGINX_PUBLIC_IP}.sslip.io \
+  --set jobs.host=r2devops-jobs.${NGINX_PUBLIC_IP}.sslip.io \
+  --set ingress.enabled=true \
+  --set ingress.className=nginx \
+  --set ingress.annotations.'cert-manager\.io/cluster-issuer'=letsencrypt-prod \
   --set kratos.dependency.enabled=false \
-  --set minio.dependency.enabled=true,minio.custom.host=r2devops-minio \
-  --set postgresql.dependency.enabled=true,postgresql.custom.host=r2devops-postgresql \
-  --set redis.dependency.enabled=true,redis.custom.host=r2devops-redis-master \
+  --set minio.dependency.enabled=true \
+  --set postgresql.dependency.enabled=true \
+  --set redis.dependency.enabled=true \
   --namespace r2devops \
   --debug
 
