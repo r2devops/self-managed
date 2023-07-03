@@ -51,6 +51,9 @@ NGINX_PUBLIC_IP=`kubectl get service -n ingress-nginx ingress-nginx-controller -
 
 # applies the manifest (add "--debug > output.yaml" in case of issue)
 helm upgrade --install r2devops . -f values.yaml --create-namespace \
+  --set front.host=r2devops.${NGINX_PUBLIC_IP}.sslip.io,front.tls.secretName=r2devops-front-tls \
+  --set jobs.host=r2devops-jobs.${NGINX_PUBLIC_IP}.sslip.io,jobs.tls.secretName=r2devops-jobs-tls \
+  --set ingress.enabled=true,ingress.className=nginx,ingress.annotations.'cert-manager\.io/cluster-issuer'=letsencrypt-prod \
   --set kratos.dependency.enabled=false \
   --set minio.dependency.enabled=true,minio.custom.host=r2devops-minio \
   --set postgresql.dependency.enabled=true,postgresql.custom.host=r2devops-postgresql \
