@@ -118,7 +118,7 @@ spec:
             - name: JOBS_AP_FILE_CLONE_TIMEOUT
               value: "10000000000"
             - name: JOBS_DB_USER
-              value: "postgres"
+              value: "{{ $.Values.postgresql.global.postgresql.auth.username }}"
             - name: JOBS_DB_PASSWORD
               value: "{{ $.Values.postgresql.global.postgresql.auth.postgresPassword }}"
             - name: S3_ACCESS_KEY

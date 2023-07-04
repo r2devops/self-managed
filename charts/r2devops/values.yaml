@@ -96,6 +96,7 @@ postgresql:
   global:
     postgresql:
       auth:
+        username: postgresUser
         postgresPassword: secretpassword
   primary:
     initdb:
