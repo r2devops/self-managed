@@ -104,6 +104,7 @@ postgresql:
         # creates the database (ref. https://artifacthub.io/packages/helm/bitnami/postgresql#initialize-a-fresh-instance)
         init.sql: |
           CREATE DATABASE r2devops;
+          CREATE DATABASE kratos;
 
 # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis/values.yaml
 redis:
