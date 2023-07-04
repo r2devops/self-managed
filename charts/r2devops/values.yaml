@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: registry.gitlab.com/r2devops/frontend
-  tag: v0.83.7
+  tag: v0.101.11
   replicaCount: 1
   port: 80
   livenessEndpoint: "/"
@@ -27,7 +27,7 @@ jobs:
   type: backend
   name: r2devops-jobs
   image: registry.gitlab.com/r2devops/jobs
-  tag: v1.3.3
+  tag: v1.13.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/job/health/alive"
@@ -43,7 +43,7 @@ worker:
   type: backend
   name: r2devops-worker
   image: registry.gitlab.com/r2devops/jobs
-  tag: v1.3.3
+  tag: v1.13.0
   replicaCount: 1
   command: ["./app"]
   args: ["--worker"]
