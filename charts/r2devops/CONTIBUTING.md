@@ -34,13 +34,6 @@ helm template r2devops . -f values.yaml \
 
 ## How to deploy manually from the sources
 
-### Create a secret for the registry
-
-```bash
-kubectl create ns r2devops
-kubectl create secret docker-registry r2devops-registry --docker-server=<r2devops-registry-server> --docker-username=<username> --docker-password=<token> -n r2devops
-```
-
 ### Sample with all charts
 
 ```bash
