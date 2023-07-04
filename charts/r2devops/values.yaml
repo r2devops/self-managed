@@ -116,3 +116,264 @@ redis:
     password: secretpassword
   replica:
     replicaCount: 1
+
+# ref. https://github.com/ory/k8s/blob/master/helm/charts/kratos/values.yaml
+kratos:
+  dependency:
+    enabled: true
+  ingress:
+    admin:
+      enabled: false
+    public:
+      enabled: true
+      annotations: {}
+      className: ""
+      hosts:
+        - host: "api.<r2devops_domain>"
+          paths:
+            - path: /kratos/public(/|$)(.*)
+              pathType: ImplementationSpecific
+  kratos:
+    config:
+      dsn: "postgres://<kratos_db_user>:REPLACE_ME_BY_KRATOS_DB_PASSWORD@<kratos_db_host>:<kratos_db_port>/<kratos_db_name>?sslmode=<sslmode>&max_conns=20&max_idle_conns=4"
+      serve:
+        public:
+          base_url: "https://api.<r2devops_domain>/kratos/public"
+          cors:
+            allowed_origins:
+              - "https://<r2devops_domain>*"
+            enabled: true
+            allowed_methods:
+              - POST
+              - GET
+              - PUT
+              - PATCH
+              - DELETE
+            allowed_headers:
+              - Content-Type
+              - Authorization
+              - Cookie
+            exposed_headers:
+              - Content-Type
+              - Set-Cookie
+            debug: false
+        admin:
+          request_log:
+            disable_for_health: true
+      selfservice:
+        methods:
+          password:
+            enabled: false
+          profile:
+            enabled: true
+          oidc:
+            enabled: true
+            config:
+              providers:
+                - id: gitlab
+                  provider: gitlab
+                  mapper_url: file:///etc/config/oidc.gitlab.jsonnet
+                  scope:
+                    - openid
+                    - email
+                  client_id: "<client_id>"
+                  client_secret: "<client_secret>"
+                  issuer_url: "https://<gitlab_domain>"
+        default_browser_return_url: "https://<r2devops_domain>/u/signin"
+        whitelisted_return_urls:
+          - "https://<r2devops_domain>"
+        flows:
+          error:
+            ui_url: "https://<r2devops_domain>"
+          login:
+            ui_url: "https://<r2devops_domain>/u/signin"
+          logout:
+            after:
+              default_browser_return_url: "https://<r2devops_domain>"
+          settings:
+            ui_url: "https://<r2devops_domain>/u/dashboard/profile"
+          registration:
+            ui_url: "https://<r2devops_domain>/u/signup"
+          recovery:
+            ui_url: "https://<r2devops_domain>/u/recovery"
+      cookies:
+        domain: "https://api.<r2devops_domain>"
+      secrets:
+        default:
+          - "REPLACE_ME_BY_SECRET_DEFAULT"
+        cookie:
+          - "REPLACE_ME_BY_SECRET_COOKIE"
+        cipher:
+          - "REPLACE_ME_BY_SECRET_CIPHER"
+      log:
+        level: info
+        format: text
+        leak_sensitive_values: false
+      identity:
+        default_schema_url: file:///etc/config/identity.default.schema.json
+      courier:
+        # Not used but mandatory
+        smtp:
+          from_name: R2DevOps
+          from_address: tech@r2devops.io
+          connection_uri: "smtp://mailhog:1025"
+      version: v0.8.2-alpha.1
+    development: false
+    autoMigrate: true
+    identitySchemas:
+      "identity.default.schema.json": |
+        {
+          "$id": "https://r2devops.io/schemas/v1/member.schema.json",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "R2Devops Member (v1)",
+          "type": "object",
+          "properties": {
+            "traits": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "title": "E-Mail",
+                  "minLength": 3,
+                  "not": {
+                    "anyOf": [
+                      {
+                        "pattern": "@mailinator\\.com$"
+                      },
+                      {
+                        "pattern": "@yopmail\\.com$"
+                      }
+                    ]
+                  },
+                  "ory.sh/kratos": {
+                    "credentials": {
+                      "password": {
+                        "identifier": true
+                      }
+                    }
+                  }
+                },
+                "username": {
+                  "minLength": 2,
+                  "type": "string",
+                  "title": "User Name",
+                  "pattern": "^[\\.a-zA-Z0-9_-]+$",
+                  "ory.sh/kratos": {
+                    "credentials": {
+                      "password": {
+                        "identifier": true
+                      }
+                    }
+                  }
+                },
+                "gitlab_username": {
+                  "minLength": 1,
+                  "type": "string",
+                  "title": "GitLab username",
+                  "pattern": "^[\\.a-zA-Z0-9_-]+$"
+                },
+                "gitlab_token": {
+                  "type": "string",
+                  "title": "GitLab token"
+                },
+                "github_username": {
+                  "type": "string",
+                  "title": "GitHub username"
+                },
+                "github_token": {
+                  "type": "string",
+                  "title": "GitHub token"
+                },
+                "full_name": {
+                  "type": "string",
+                  "title": "Full name",
+                  "minLength": 3,
+                  "maxLength": 40,
+                  "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+                },
+                "picture": {
+                  "type": "string",
+                  "format": "uri",
+                  "title": "Picture URL"
+                },
+                "website": {
+                  "type": "string",
+                  "format": "uri",
+                  "title": "Website URL"
+                },
+                "company": {
+                  "type": "string",
+                  "title": "Company",
+                  "minLength": 3,
+                  "maxLength": 60,
+                  "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+                },
+                "linkedin": {
+                  "type": "string",
+                  "format": "uri",
+                  "title": "Linkedin"
+                },
+                "job_title": {
+                  "type": "string",
+                  "title": "Job title",
+                  "minLength": 3,
+                  "maxLength": 60,
+                  "pattern": "^[^:;?\\,%^`\"$*()_&@#]*$"
+                },
+                "twitter": {
+                  "type": "string",
+                  "title": "Twitter",
+                  "minLength": 2,
+                  "maxLength": 16,
+                  "pattern": "^@?[A-Za-z0-9_]+$"
+                },
+                "bio": {
+                  "type": "string",
+                  "format": "text",
+                  "minLength": 3,
+                  "maxLength": 400,
+                  "title": "Bio"
+                },
+                "goodies": {
+                  "type": "string",
+                  "title": "Goodies code"
+                }
+              },
+              "required": [
+                "email",
+                "username"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      "oidc.gitlab.jsonnet": |
+        local claims = {
+          email_verified: false,
+        } + std.extVar('claims');
+
+        {
+          identity: {
+            traits: {
+              // Allowing unverified email addresses enables account
+              // enumeration attacks, especially if the value is used for
+              // e.g. verification or as a password login identifier.
+              //
+              // Therefore we only return the email if it (a) exists and (b) is marked verified
+              // by GitLab.
+              [if "email" in claims && claims.email_verified then "email" else null]: claims.email,
+              [if "nickname" in claims then "username" else null]: claims.nickname,
+              [if "nickname" in claims then "gitlab_username" else null]: claims.nickname,
+              [if "name" in claims then "full_name" else null]: claims.name,
+              [if "website" in claims then "website" else null]: claims.website,
+              [if "picture" in claims then "picture" else null]: claims.picture,
+            },
+          },
+        }
+  service:
+    admin:
+      enabled: false
+  image:
+    repository: oryd/kratos
+    tag: v0.8.2-alpha.1
