@@ -7,7 +7,7 @@ This Helm chart will install [R2Devops](https://r2devops.io/) on a Kubernetes cl
 ```bash
 # creates a secret for the registry (ref. https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 kubectl create ns r2devops
-kubectl create secret docker-registry r2devops-registry --docker-server=<r2devops-registry-server> --docker-username=<username> --docker-password=<token> -n r2devops
+kubectl create secret docker-registry r2devops-registry --docker-server=registry.gitlab.com/r2devops --docker-username=r2devops-user --docker-password=<token> -n r2devops
 
 # helm repo add #### TODO
 
