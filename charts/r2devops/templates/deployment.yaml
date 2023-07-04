@@ -128,6 +128,15 @@ spec:
             - name: JOBS_REDIS_PASSWORD
               value: "{{ $.Values.redis.auth.password }}"
             {{- end }}
+      {{- if eq .type "frontend" }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/environments
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .name }}
+      {{- end }}
       imagePullSecrets:
         - name: {{ $.Values.registry.secretName }}
 {{- end }}
