@@ -72,7 +72,7 @@ spec:
             - name: JOBS_DB_TIMEZONE
               value: "Europe/Paris"
             - name: JOBS_GITLAB_URL
-              value: "https://gitlab.com"
+              value: "{{ $.Values.gitlab.domain }}"
             - name: JOBS_AGENT
               value: "R2Devops-jobs/1.0.0/go"
             - name: JOBS_KRATOS_DEBUG

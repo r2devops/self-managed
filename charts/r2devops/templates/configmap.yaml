@@ -12,7 +12,7 @@ data:
       "appTitle": "R2Devops",
       "apiUrl": "https://{{ .Values.jobs.host }}",
       "apiUrlIdentities": "https://{{ .Values.jobs.host }}/kratos/public",
-      "gitLabApiUrl": "{{ (index .Values.kratos.kratos.config.selfservice.methods.oidc.config.providers 0).issuer_url }}",
+      "gitLabApiUrl": "{{ .Values.gitlab.domain }}",
       "selfHosted": true,
       "docUrl": "https://docs.r2devops.io"
     }

@@ -38,6 +38,9 @@ jobs:
     secretName: ""
   resources: {}
 
+gitlab:
+  domain: "https://gitlab.com"
+
 worker:
   enabled: true
   type: backend
