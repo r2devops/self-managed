@@ -17,6 +17,16 @@ spec:
   rules:
     - host: {{ .host }}
       http:
+        {{- if eq .type "backend" }}
+        paths:
+          - path: /job
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .name }}
+                port:
+                  number: {{ .port }}
+        {{- else }}
         paths:
           - path: /
             pathType: Prefix
@@ -25,6 +35,7 @@ spec:
                 name: {{ .name }}
                 port:
                   number: {{ .port }}
+        {{- end }}
   {{- if .tls }}
   tls:
     - hosts:

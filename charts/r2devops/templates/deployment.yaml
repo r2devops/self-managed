@@ -78,7 +78,7 @@ spec:
             - name: JOBS_KRATOS_DEBUG
               value: "false"
             - name: JOBS_API_DOMAIN
-              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}"
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/job"
             - name: JOBS_CORS_ORIGIN
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: SERVICE_KRATOS_URL
@@ -105,18 +105,18 @@ spec:
               value: "namespaces"
             - name: JOBS_REDIS_SET_NAMESPACES_TTL
               value: "720h"
-            - name: JOBS_REDIS_SET_TPL_SYNC
+            - name: JOBS_REDIS_LIST_TASK_TPL_SYNC
               value: "templates_sync"
-            - name: JOBS_REDIS_SET_TPL_PROCESSING
-              value: "templates_processing"
-            - name: JOBS_REDIS_SET_TPL_MAX_SIZE
-              value: "1000"
+            - name: JOBS_REDIS_LIST_TASK_ANALYSIS
+              value: "analyses"
             - name: JOBS_AP_FILE_MAX_SIZE
               value: "100000"
             - name: JOBS_AP_FILE_MAX_NUMBER
               value: "250"
             - name: JOBS_AP_FILE_CLONE_TIMEOUT
               value: "10000000000"
+            - name: GITLEAKS_PATH
+              value: "/opt/gitleaks"
             - name: JOBS_DB_USER
               value: "{{ $.Values.postgresql.global.postgresql.auth.username }}"
             - name: JOBS_DB_PASSWORD
