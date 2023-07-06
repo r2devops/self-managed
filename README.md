@@ -1,4 +1,4 @@
-# Self-Hosted R2Devops
+# Self-Managed R2Devops
 
 This projects contains resources to setup a self-hosted instance of [R2Devops](https://r2devops.io/).
 
