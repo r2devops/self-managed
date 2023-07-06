@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: registry.gitlab.com/r2devops/frontend
-  tag: v0.101.11
+  tag: v0.101.14
   replicaCount: 1
   port: 80
   livenessEndpoint: "/"
