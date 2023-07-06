@@ -3,13 +3,13 @@ dependencies:
   repository: https://k8s.ory.sh/helm/charts
   version: 0.21.5
 - name: minio
-  repository: https://charts.min.io
-  version: 5.0.9
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.6.5
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 16.13.2
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 11.6.2
-digest: sha256:a1cd0a797e1a219cc9cdd148607430c6d10d9855a1b1705674cf48eedea15a29
-generated: "2023-07-03T10:25:18.974245422+02:00"
+digest: sha256:71fb681c8600d63b8b1d418bec434441497280ea460c4d59e43e49dc9370b6f7
+generated: "2023-07-06T09:32:34.465257+02:00"
