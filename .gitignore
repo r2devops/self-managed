@@ -1,3 +1,5 @@
 .env
 config.json
-backup*
+backups/*
+**/charts/*.tgz
+temp.*

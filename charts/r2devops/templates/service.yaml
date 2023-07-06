@@ -1,0 +1,23 @@
+{{- $applications := list .Values.front .Values.jobs -}}
+{{ range $applications }}
+{{- if .enabled -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .name }}
+    app.kubernetes.io/name: {{ .name }}
+  name: {{ .name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .name }}
+    app.kubernetes.io/name: {{ .name }}
+{{- end }}
+{{ end }}

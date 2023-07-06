@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ .Values.front.name }}
+    app.kubernetes.io/name: {{ .Values.front.name }}
+  name: {{ .Values.front.name }}
+data:
+  config.json: |
+    {
+      "appTitle": "R2Devops",
+      "apiUrl": "https://{{ .Values.jobs.host }}",
+      "apiUrlIdentities": "https://{{ .Values.jobs.host }}/kratos/public",
+      "gitLabApiUrl": "{{ .Values.gitlab.domain }}",
+      "selfHosted": true,
+      "docUrl": "https://docs.r2devops.io"
+    }

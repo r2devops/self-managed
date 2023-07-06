@@ -1,0 +1,143 @@
+{{- $applications := list .Values.front .Values.jobs .Values.worker -}}
+{{ range $applications }}
+{{- if .enabled -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  labels:
+    app: {{ .name }}
+    app.kubernetes.io/name: {{ .name }}
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+      app.kubernetes.io/name: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+        app.kubernetes.io/name: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}:{{ .tag }}
+          imagePullPolicy: Always
+          {{- if .command }}
+          command: {{ .command }}
+          {{- end }}
+          {{- if .args }}
+          args: {{ .args }}
+          {{- end }}
+          {{- if .port }}
+          ports:
+            - name: http
+              containerPort: {{ .port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ .livenessEndpoint }}
+              port: http
+          readinessProbe:
+            httpGet:
+              path: {{ .readinesspoint }}
+              port: http
+          {{- end }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          env:
+          {{- if .extraEnv }}
+            {{- toYaml .extraEnv | nindent 12 }}
+          {{- end }}
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            {{- if eq .type "backend" }}
+            - name: JOBS_LISTEN_ADDR
+              value: "0.0.0.0"
+            - name: JOBS_LISTEN_PORT
+              value: "3000"
+            - name: JOBS_DB_HOST
+              value: "{{ default (printf "%s-%s" $.Release.Name "postgresql") $.Values.postgresql.custom.host }}"
+            - name: JOBS_DB_PORT
+              value: "{{ default 5432 $.Values.postgresql.containerPorts.postgresql }}"
+            - name: JOBS_DB_NAME
+              value: "{{ $.Values.postgresql.custom.dbName }}"
+            - name: JOBS_DB_SSLMODE
+              value: "{{ $.Values.postgresql.custom.sslmode }}"
+            - name: JOBS_DB_TIMEZONE
+              value: "Europe/Paris"
+            - name: JOBS_GITLAB_URL
+              value: "{{ $.Values.gitlab.domain }}"
+            - name: JOBS_AGENT
+              value: "R2Devops-jobs/1.0.0/go"
+            - name: JOBS_KRATOS_DEBUG
+              value: "false"
+            - name: JOBS_API_DOMAIN
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/job"
+            - name: JOBS_CORS_ORIGIN
+              value: "https://{{ default $.Values.front.name $.Values.front.host }}"
+            - name: SERVICE_KRATOS_URL
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/kratos/public/"
+            - name: S3_HOST
+              value: {{ default (printf "%s-%s" $.Release.Name "minio:9000") $.Values.minio.custom.host | quote }}
+            - name: S3_REGION
+              value: "{{ $.Values.minio.custom.region }}"
+            - name: S3_BUCKET
+              value: "{{ $.Values.minio.custom.bucketName }}"
+            - name: S3_DISABLE_SSL
+              value: "{{ $.Values.minio.custom.disableSSL }}"
+            - name: S3_FORCE_PATH_STYLE
+              value: "{{ $.Values.minio.custom.forcePathStyle }}"
+            - name: JOBS_REDIS_HOST
+              value: "{{ default (printf "%s-%s" $.Release.Name "redis-master") $.Values.redis.custom.host }}"
+            - name: JOBS_REDIS_PORT
+              value: "{{ default 6379 $.Values.redis.master.containerPorts.redis }}"
+            - name: JOBS_REDIS_DB
+              value: "0"
+            - name: JOBS_REDIS_USER
+              value: "default"
+            - name: JOBS_REDIS_SET_NAMESPACES
+              value: "namespaces"
+            - name: JOBS_REDIS_SET_NAMESPACES_TTL
+              value: "720h"
+            - name: JOBS_REDIS_LIST_TASK_TPL_SYNC
+              value: "templates_sync"
+            - name: JOBS_REDIS_LIST_TASK_ANALYSIS
+              value: "analyses"
+            - name: JOBS_AP_FILE_MAX_SIZE
+              value: "100000"
+            - name: JOBS_AP_FILE_MAX_NUMBER
+              value: "250"
+            - name: JOBS_AP_FILE_CLONE_TIMEOUT
+              value: "10000000000"
+            - name: GITLEAKS_PATH
+              value: "/opt/gitleaks"
+            - name: JOBS_DB_USER
+              value: "{{ $.Values.postgresql.global.postgresql.auth.username }}"
+            - name: JOBS_DB_PASSWORD
+              value: "{{ $.Values.postgresql.global.postgresql.auth.postgresPassword }}"
+            - name: S3_ACCESS_KEY
+              value: "{{ default $.Values.minio.custom.accessKey $.Values.minio.auth.rootUser }}"
+            - name: S3_SECRET_KEY
+              value: "{{ default $.Values.minio.custom.secretKey $.Values.minio.auth.rootPassword }}"
+            - name: JOBS_REDIS_PASSWORD
+              value: "{{ $.Values.redis.auth.password }}"
+            {{- end }}
+      {{- if eq .type "frontend" }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/environments
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .name }}
+      {{- end }}
+      imagePullSecrets:
+        - name: {{ $.Values.registry.secretName }}
+{{- end }}
+{{ end }}
