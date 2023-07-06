@@ -106,6 +106,7 @@ postgresql:
   custom:
     host: ""
     dbName: "r2devops"
+    sslmode: "disable"
   global:
     postgresql:
       auth:

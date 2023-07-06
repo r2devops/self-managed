@@ -68,7 +68,7 @@ spec:
             - name: JOBS_DB_NAME
               value: "{{ $.Values.postgresql.custom.dbName }}"
             - name: JOBS_DB_SSLMODE
-              value: "disable"
+              value: "{{ $.Values.postgresql.custom.sslmode }}"
             - name: JOBS_DB_TIMEZONE
               value: "Europe/Paris"
             - name: JOBS_GITLAB_URL
