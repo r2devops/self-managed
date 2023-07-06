@@ -65,11 +65,6 @@ ingress:
 registry:
   secretName: r2devops-registry
 
-# ref. https://github.com/ory/k8s/blob/master/helm/charts/kratos/values.yaml
-kratos:
-  dependency:
-    enabled: true
-
 # ref. https://github.com/minio/minio/blob/master/helm/minio/values.yaml
 minio:
   dependency:
