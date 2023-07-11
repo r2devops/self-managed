@@ -47,7 +47,7 @@ worker:
   name: r2devops-worker
   image: registry.gitlab.com/r2devops/jobs
   tag: v1.14.0
-  replicaCount: 1
+  replicaCount: 5
   command: ["./app"]
   args: ["--worker"]
   livenessEndpoint: "/job/health/alive"
@@ -226,7 +226,7 @@ kratos:
         # Not used but mandatory
         smtp:
           from_name: R2DevOps
-          from_address: tech@r2devops.io
+          from_address: noreply@r2devops.io
           connection_uri: "smtp://mailhog:1025"
       version: v0.8.2-alpha.1
     development: false
