@@ -2,7 +2,7 @@ apiVersion: v2
 name: r2devops
 description: Helm chart for R2Devops
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "1.14.0"
 dependencies:
   # ref. https://k8s.ory.sh/helm/kratos.html
@@ -26,8 +26,10 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.dependency.enabled
 maintainers:
-  - name: Thomas Boni
-    email: thomas@r2devops.io
   - name: Bertrand Thomas
     email: bertrand@devpro.fr
+  - name: Sebastien Longo
+    email: slongo@klanik.com
+  - name: Thomas Boni
+    email: thomas@r2devops.io
 home: https://gitlab.com/r2devops/self-managed/charts/r2devops
