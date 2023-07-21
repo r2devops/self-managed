@@ -139,11 +139,11 @@ kratos:
       enabled: true
       annotations: {}
       className: ""
-      hosts:
-        - host: "api.<r2devops_domain>"
-          paths:
-            - path: /kratos/public(/|$)(.*)
-              pathType: ImplementationSpecific
+      hosts: []
+        # - host: "api.<r2devops_domain>"
+        #   paths:
+        #     - path: /kratos/public(/|$)(.*)
+        #       pathType: ImplementationSpecific
   kratos:
     config:
       dsn: "postgres://<kratos_db_user>:REPLACE_ME_BY_KRATOS_DB_PASSWORD@<kratos_db_host>:<kratos_db_port>/<kratos_db_name>?sslmode=<sslmode>&max_conns=20&max_idle_conns=4"
