@@ -10,11 +10,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: "ci"
+  group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  code-analysis:
+    name: Code analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

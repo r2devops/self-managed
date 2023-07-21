@@ -1,5 +1,8 @@
 # Self-Managed R2Devops
 
+[![CI](https://github.com/r2devops/self-managed/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/ci.yml)
+[![Release](https://github.com/r2devops/self-managed/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/release.yml)
+
 This project contains resources to setup a self-managed instance of [R2Devops](https://r2devops.io/).
 
 ## Installation
