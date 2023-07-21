@@ -1,18 +1,19 @@
 # Contributing to R2Devops Helm chart
 
+In this page, you'll find command lines to run from a terminal.
+
 ## How to update the dependencies
 
 ```bash
 # adds helm chart repositories
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add minio https://charts.min.io/
 helm repo add ory https://k8s.ory.sh/helm/charts
 helm repo update
 
 # searches for the latest versions
 helm search repo -l [kratos|minio|redis|postgresql] --versions
 
-# manual: update version number in Chart.yaml
+# manual action: update version number in Chart.yaml
 
 # updates Chart.lock
 helm dependency update
@@ -34,7 +35,7 @@ helm template r2devops . -f values.yaml \
 
 ## How to deploy manually from the sources
 
-### Sample with all charts
+### Sample with all charts, NGINX Ingress controler, sslip.io, cert-manager & Let's Encrypt
 
 ```bash
 # retrieves public IP
@@ -51,8 +52,7 @@ helm upgrade --install r2devops . -f values.yaml --create-namespace \
   --set minio.dependency.enabled=true \
   --set postgresql.dependency.enabled=true \
   --set redis.dependency.enabled=true \
-  --namespace r2devops \
-  --debug
+  --namespace r2devops
 
 # cleans up
 helm uninstall r2devops -n r2devops

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   release:
@@ -13,17 +14,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Install dependencies repo
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add ory https://k8s.ory.sh/helm/charts
-
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 3.10.1
+      - name: Add dependency chart repositories
+        run: ./scripts/add_helm_repo.sh
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         env:
