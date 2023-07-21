@@ -26,10 +26,10 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.dependency.enabled
 maintainers:
-  - name: Bertrand Thomas
+  - name: devpro
     email: bertrand@devpro.fr
-  - name: Sebastien Longo
+  - name: gemini-jtff
     email: slongo@klanik.com
-  - name: Thomas Boni
+  - name: thomasboni
     email: thomas@r2devops.io
 home: https://gitlab.com/r2devops/self-managed/charts/r2devops
