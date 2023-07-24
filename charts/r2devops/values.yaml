@@ -104,7 +104,8 @@ postgresql:
   global:
     postgresql:
       auth:
-        username: postgresUser
+        username: r2devops
+        password: secretpassword
         postgresPassword: secretpassword
   primary:
     initdb:
