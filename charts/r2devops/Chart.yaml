@@ -22,7 +22,7 @@ dependencies:
     condition: redis.dependency.enabled
   # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql
   - name: postgresql
-    version: 11.6.2   # appVersion: 14.3.0
+    version: 11.9.13 # appVersion: 14.5.0
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.dependency.enabled
 maintainers:
