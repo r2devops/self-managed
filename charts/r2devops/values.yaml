@@ -3,9 +3,9 @@ front:
   type: frontend
   name: r2devops-front
   image: registry.gitlab.com/r2devops/frontend
-  tag: v0.101.15
+  tag: v1.0.1
   replicaCount: 1
-  port: 80
+  port: 3000
   livenessEndpoint: "/"
   readinesspoint: "/"
   extraEnv: []
@@ -205,7 +205,7 @@ kratos:
           recovery:
             ui_url: "https://<r2devops_domain>/u/recovery"
       cookies:
-        domain: "https://api.<r2devops_domain>"
+        domain: "<r2devops_domain>"
       secrets:
         default:
           - "REPLACE_ME_BY_SECRET_DEFAULT"
