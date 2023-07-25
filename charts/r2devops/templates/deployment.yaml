@@ -135,7 +135,8 @@ spec:
       {{- if eq .type "frontend" }}
           volumeMounts:
             - name: config-volume
-              mountPath: /usr/share/nginx/html/environments
+              mountPath: /app/.next/server/app/api/config.body
+              subPath: config.body
       volumes:
       - name: config-volume
         configMap:

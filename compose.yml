@@ -258,9 +258,9 @@ services:
     volumes:
       - type: bind
         source: ./.docker/r2devops/config.json
-        target: /usr/share/nginx/html/environments/config.json
+        target: /app/.next/server/app/api/config.body
     expose:
-      - "80"
+      - "3000"
     labels:
       - "traefik.http.routers.front.rule=Host(`${FRONTEND_URL}`)"
       - "traefik.http.routers.front.entrypoints=websecure"
