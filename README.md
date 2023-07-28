@@ -7,7 +7,7 @@ This project contains resources to setup a self-managed instance of [R2Devops](h
 
 ## Installation
 
-Two installation methods :
+Two installation methods:
 
 - 🐳 [Docker compose](https://docs.r2devops.io/self-managed/docker-compose/)
 - ☸️ [Kubernetes with Helm](https://docs.r2devops.io/self-managed/kubernetes/)
