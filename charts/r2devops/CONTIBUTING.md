@@ -1,6 +1,6 @@
 # Contributing to R2Devops Helm chart
 
-In this page, you'll find command lines to run from a terminal.
+In this page, you'll find command lines to help you contribute to the Helm chart.
 
 ## How to update the dependencies
 
@@ -19,6 +19,20 @@ helm search repo -l [kratos|minio|redis|postgresql] --versions
 helm dependency update
 ```
 
+## How to configure
+
+```bash
+cp examples/values_local.yaml values_mine.yaml
+sed -i "s/MINIO_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
+sed -i "s/POSTGRESQL_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
+sed -i "s/REDIS_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
+sed -i "s/KRATOS_SECRETS_DEFAULT/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
+sed -i "s/KRATOS_SECRETS_COOKIE/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
+sed -i "s/KRATOS_SECRETS_CIPHER/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
+```
+
+💡 Follow the [documentation](https://docs.r2devops.io/self-managed/kubernetes/#gitlab-oidc) to retrieve values of `GITLAB_CLIENT_ID` and `GITLAB_CLIENT_ID` in `values_mine.yaml`
+
 ## How to check chart code quality
 
 ```bash
@@ -26,11 +40,7 @@ helm dependency update
 helm lint
 
 # checks the Kubernetes objects generated from the chart
-helm template r2devops . -f values.yaml \
-  --set minio.dependency.enabled=true \
-  --set postgresql.dependency.enabled=true \
-  --set redis.dependency.enabled=true \
-  --namespace r2devops > temp.yaml
+helm template r2devops . -f values.yaml -f values_mine.yaml --namespace r2devops-beta > temp.yaml
 ```
 
 ## How to deploy manually from the sources
@@ -41,27 +51,34 @@ helm template r2devops . -f values.yaml \
 # retrieves public IP
 NGINX_PUBLIC_IP=`kubectl get service -n ingress-nginx ingress-nginx-controller --output jsonpath='{.status.loadBalancer.ingress[0].ip}'`
 
+# creates the namespace
+kubectl create ns r2devops-beta
+
+# creates the container registry secret
+kubectl create secret docker-registry r2devops-registry --docker-server=registry.gitlab.com/r2devops --docker-username=r2devops-user --docker-password="<r2devops_registry_token>" -n r2devops-beta
+
+# sets the right URLs by replacing the string in values_mine.yaml
+sed -i "s/R2DEVOPS_DOMAIN/r2devops.${NGINX_PUBLIC_IP}.sslip.io/g" values_mine.yaml
+
 # applies the manifest (add "--debug > output.yaml" in case of issue)
-helm upgrade --install r2devops . -f values.yaml --create-namespace \
-  --set front.host=r2devops.${NGINX_PUBLIC_IP}.sslip.io \
-  --set jobs.host=api.r2devops.${NGINX_PUBLIC_IP}.sslip.io \
-  --set ingress.enabled=true \
-  --set ingress.className=nginx \
-  --set ingress.annotations.'cert-manager\.io/cluster-issuer'=letsencrypt-prod \
-  --set kratos.dependency.enabled=false \
-  --set minio.dependency.enabled=true \
-  --set postgresql.dependency.enabled=true \
-  --set redis.dependency.enabled=true \
-  --namespace r2devops
+helm install r2devops . -f values.yaml -f values_mine.yaml \
+--set kratos.dependency.enabled=false \
+--namespace r2devops-beta
+
+# installs completely with kratos
+helm upgrade r2devops . -f values.yaml -f values_mine.yaml --namespace r2devops-beta
+
+# makes sure everything runs fine
+kubectl get pod -n r2devops-beta
 
 # cleans up
-helm uninstall r2devops -n r2devops
-kubectl delete ns r2devops
+helm uninstall r2devops -n r2devops-beta
+kubectl delete ns r2devops-beta
 ```
 
 ## How to investigate
 
 ```bash
 # forwards PostgreSQL service (to open with pgAdmin for example)
-kubectl port-forward service/r2devops-postgresql 5432:5432 -n r2devops
+kubectl port-forward service/r2devops-postgresql 5432:5432 -n r2devops-beta
 ```

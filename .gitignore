@@ -3,3 +3,4 @@ config.json
 backups/*
 **/charts/*.tgz
 temp.*
+values_mine.yaml
