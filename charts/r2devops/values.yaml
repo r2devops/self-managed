@@ -61,6 +61,7 @@ ingress:
   enabled: false
   className: ""
   annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
 
 registry:
   secretName: r2devops-registry
@@ -188,8 +189,8 @@ kratos:
                   client_secret: "<client_secret>"
                   issuer_url: "https://<gitlab_domain>"
         default_browser_return_url: "https://<r2devops_domain>/u/signin"
-        whitelisted_return_urls:
-          - "https://<r2devops_domain>"
+        whitelisted_return_urls: []
+          # - "https://<r2devops_domain>"
         flows:
           error:
             ui_url: "https://<r2devops_domain>"
@@ -207,12 +208,12 @@ kratos:
       cookies:
         domain: "<r2devops_domain>"
       secrets:
-        default:
-          - "REPLACE_ME_BY_SECRET_DEFAULT"
-        cookie:
-          - "REPLACE_ME_BY_SECRET_COOKIE"
-        cipher:
-          - "REPLACE_ME_BY_SECRET_CIPHER"
+        default: []
+          # - "REPLACE_ME_BY_SECRET_DEFAULT"
+        cookie: []
+          # - "REPLACE_ME_BY_SECRET_COOKIE"
+        cipher: []
+          # - "REPLACE_ME_BY_SECRET_CIPHER"
       log:
         level: info
         format: text
