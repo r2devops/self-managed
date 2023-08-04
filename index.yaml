@@ -3,6 +3,41 @@ entries:
   r2devops:
   - apiVersion: v2
     appVersion: 1.14.1
+    created: "2023-08-04T08:06:37.885718637Z"
+    dependencies:
+    - condition: kratos.dependency.enabled
+      name: kratos
+      repository: https://k8s.ory.sh/helm/charts
+      version: 0.21.5
+    - condition: minio.dependency.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.6.5
+    - condition: redis.dependency.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.13.2
+    - condition: postgresql.dependency.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: Helm chart for R2Devops
+    digest: 86e4ea0594b8178876c6198e460a971b2d659bfeb0e5955c8f9dc9c4a9e7f243
+    home: https://gitlab.com/r2devops/self-managed/charts/r2devops
+    maintainers:
+    - email: bertrand@devpro.fr
+      name: devpro
+    - email: slongo@klanik.com
+      name: gemini-jtff
+    - email: thomas@r2devops.io
+      name: thomasboni
+    name: r2devops
+    type: application
+    urls:
+    - https://github.com/r2devops/self-managed/releases/download/r2devops-0.2.4/r2devops-0.2.4.tgz
+    version: 0.2.4
+  - apiVersion: v2
+    appVersion: 1.14.1
     created: "2023-08-01T12:38:40.111535659Z"
     dependencies:
     - condition: kratos.dependency.enabled
@@ -345,4 +380,4 @@ entries:
     urls:
     - https://github.com/r2devops/self-managed/releases/download/r2devops-0.1.0/r2devops-0.1.0.tgz
     version: 0.1.0
-generated: "2023-08-01T12:38:40.111752563Z"
+generated: "2023-08-04T08:06:37.885770737Z"
