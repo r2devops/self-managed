@@ -3,7 +3,7 @@ name: r2devops
 description: Helm chart for R2Devops
 type: application
 version: 0.2.6
-appVersion: "1.14.1"
+appVersion: "1.14.2"
 dependencies:
   # ref. https://k8s.ory.sh/helm/kratos.html
   - name: kratos
