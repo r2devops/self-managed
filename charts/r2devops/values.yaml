@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: registry.gitlab.com/r2devops/frontend
-  tag: v1.9.0
+  tag: v1.11.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/"
@@ -27,12 +27,14 @@ jobs:
   type: backend
   name: r2devops-jobs
   image: registry.gitlab.com/r2devops/jobs
-  tag: v1.14.2
+  tag: v1.15.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/job/health/alive"
   readinesspoint: "/job/health/ready"
-  extraEnv: []
+  extraEnv:
+    - name: PROJECTS_LIMIT_KEY
+      value: "<license-key>"
   host: ""
   tls:
     secretName: ""
@@ -46,7 +48,7 @@ worker:
   type: backend
   name: r2devops-worker
   image: registry.gitlab.com/r2devops/jobs
-  tag: v1.14.2
+  tag: v1.15.0
   replicaCount: 5
   command: ["./app"]
   args: ["--worker"]
