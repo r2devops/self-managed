@@ -65,6 +65,8 @@ spec:
               value: "{{ default (printf "%s-%s" $.Release.Name "postgresql") $.Values.postgresql.custom.host }}"
             - name: JOBS_DB_PORT
               value: "{{ $.Values.postgresql.custom.port }}"
+            - name: JOBS_DB_USER
+              value: "{{ $.Values.postgresql.global.postgresql.auth.username }}"
             - name: JOBS_DB_NAME
               value: "{{ $.Values.postgresql.custom.dbName }}"
             - name: JOBS_DB_SSLMODE
@@ -119,18 +121,56 @@ spec:
               value: "/opt/gitleaks"
             - name: COMPLIANT_LABELS
               value: "Lint,Test,Build,Security,Deploy"
-            - name: JOBS_DB_USER
-              value: "{{ $.Values.postgresql.global.postgresql.auth.username }}"
+
+            {{- if ne $.Values.postgresql.global.postgresql.auth.existingSecret "" }}
+            - name: JOBS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.postgresql.global.postgresql.auth.existingSecret }}"
+                  key: "{{ $.Values.postgresql.global.postgresql.auth.secretKeys.adminPasswordKey }}"
+            {{- else }}
             - name: JOBS_DB_PASSWORD
               value: "{{ $.Values.postgresql.global.postgresql.auth.postgresPassword }}"
+            {{- end }}
+
+            {{- if ne $.Values.minio.auth.existingSecret "" }}
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.minio.auth.existingSecret }}"
+                  key: "root-user"
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.minio.auth.existingSecret }}"
+                  key: "root-password"
+            {{- else }}
             - name: S3_ACCESS_KEY
               value: "{{ $.Values.minio.auth.rootUser }}"
             - name: S3_SECRET_KEY
               value: "{{ $.Values.minio.auth.rootPassword }}"
+            {{- end }}
+
+            {{- if ne $.Values.redis.auth.existingSecret "" }}
+            - name: JOBS_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.redis.auth.existingSecret }}"
+                  key: "{{ $.Values.redis.auth.existingSecretPasswordKey }}"
+            {{- if $.Values.redis.auth.existingSecretCertKey }}
+            - name: JOBS_REDIS_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ $.Values.redis.auth.existingSecret }}"
+                  key: "{{ $.Values.redis.auth.existingSecretCertKey }}"
+            {{- end }}
+            {{- else }}
             - name: JOBS_REDIS_PASSWORD
               value: "{{ $.Values.redis.auth.password }}"
             - name: JOBS_REDIS_CERT
               value: {{ $.Values.redis.custom.cert | quote }}
+            {{- end }}
+
             {{- end }}
       {{- if eq .type "frontend" }}
           volumeMounts:
