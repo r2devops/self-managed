@@ -172,17 +172,29 @@ spec:
             {{- end }}
 
             {{- end }}
-      {{- if eq .type "frontend" }}
+
           volumeMounts:
+            - name: ca-certificates
+              mountPath: /usr/local/share/ca-certificates/
+              readOnly: true
+          {{- if eq .type "frontend" }}
             - name: config-volume
               mountPath: /app/.next/server/app/api/config.body
               subPath: config.body
+          {{- end }}
+
       volumes:
+      - name: ca-certificates
+        configMap:
+          name: {{ $.Values.customCertificateAuthority.configMapName }}
+      {{- if eq .type "frontend" }}
       - name: config-volume
         configMap:
           name: {{ .name }}
       {{- end }}
+
       imagePullSecrets:
         - name: {{ $.Values.registry.secretName }}
+
 {{- end }}
 {{ end }}

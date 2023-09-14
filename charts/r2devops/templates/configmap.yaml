@@ -16,3 +16,14 @@ data:
       "selfHosted": true,
       "docUrl": "https://docs.r2devops.io"
     }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.customCertificateAuthority.configMapName }}
+data:
+  {{- range .Values.customCertificateAuthority.certificates }}
+  {{ .name }}: {{ .value | quote }}
+  {{- end }}
+
