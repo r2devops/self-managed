@@ -60,8 +60,7 @@ worker:
   image: registry.gitlab.com/r2devops/jobs
   tag: v1.21.0
   replicaCount: 5
-  command: ["./app"]
-  args: ["--worker"]
+  args: ["./app", "--worker"]
   livenessEndpoint: "/job/health/alive"
   readinesspoint: "/job/health/ready"
   extraEnv: []
