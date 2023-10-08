@@ -29,7 +29,8 @@ spec:
           command: {{ .command }}
           {{- end }}
           {{- if .args }}
-          args: {{ .args }}
+          args:
+            {{ toYaml .args | nindent 12}}
           {{- end }}
           {{- if .port }}
           ports:
