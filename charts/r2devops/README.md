@@ -18,14 +18,8 @@ Run the following command lines from a terminal:
 # sets Kubernetes namespace name
 export R2DEVOPS_NS="r2devops"
 
-# sets R2Devops container registry token
-export REGISTRY_TOKEN="REPLACE_ME"
-
 # creates a namespace for r2devops
 kubectl create ns $R2DEVOPS_NS
-
-# creates a secret for the registry (ref. https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-kubectl create secret docker-registry r2devops-registry --docker-server=registry.gitlab.com/r2devops --docker-username=r2devops-user --docker-password=$REGISTRY_TOKEN -n $R2DEVOPS_NS
 
 # adds R2Devops Helm repository
 helm repo add r2devops https://charts.r2devops.io/

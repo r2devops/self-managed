@@ -54,9 +54,6 @@ NGINX_PUBLIC_IP=`kubectl get service -n ingress-nginx ingress-nginx-controller -
 # creates the namespace
 kubectl create ns r2devops-beta
 
-# creates the container registry secret
-kubectl create secret docker-registry r2devops-registry --docker-server=registry.gitlab.com/r2devops --docker-username=r2devops-user --docker-password="<r2devops_registry_token>" -n r2devops-beta
-
 # sets the right URLs by replacing the string in values_mine.yaml
 sed -i "s/R2DEVOPS_DOMAIN/r2devops.${NGINX_PUBLIC_IP}.sslip.io/g" values_mine.yaml
 
