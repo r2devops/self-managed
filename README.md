@@ -12,15 +12,10 @@ Two installation methods:
 - 🐳 [Docker compose](https://docs.r2devops.io/self-managed/docker-compose/)
 - ☸️ [Kubernetes with Helm](https://docs.r2devops.io/self-managed/kubernetes/)
 
-For both methods, a token will be required to access R2Devops images (`REGISTRY_TOKEN`).
-
-🗣️ Get in touch with the team to [book a demo](https://tally.so/r/mYPqYv) and get your token 🔑
-
-
 ## Contributions
 
 You are welcome to help us improve this repository!
 
 🎮 Open an Issue or create Pull Requests from your fork
 
-For the [Helm chart](charts/r2devops/README.md), there is a a dedicated [contributing page](charts/r2devops/CONTIBUTING.md).
+For the [Helm chart](charts/r2devops/README.md), there is a dedicated [contributing page](charts/r2devops/CONTIBUTING.md).

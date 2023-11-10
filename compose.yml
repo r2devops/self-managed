@@ -2,7 +2,7 @@ version: '3.9'
 name: "r2devops"
 
 x-jobs-common: &jobs-common
-    image: registry.gitlab.com/r2devops/jobs:$BACKEND_IMAGE_TAG
+    image: docker.io/r2devopsio/jobs:$BACKEND_IMAGE_TAG
     env_file: .env
     environment:
       - JOBS_LISTEN_ADDR=0.0.0.0
@@ -254,7 +254,7 @@ services:
       - intranet
 
   frontend:
-    image: registry.gitlab.com/r2devops/frontend:$FRONTEND_IMAGE_TAG
+    image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
     restart: unless-stopped
     volumes:
       - type: bind

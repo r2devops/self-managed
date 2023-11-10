@@ -194,8 +194,5 @@ spec:
           name: {{ .name }}
       {{- end }}
 
-      imagePullSecrets:
-        - name: {{ $.Values.registry.secretName }}
-
 {{- end }}
 {{ end }}
