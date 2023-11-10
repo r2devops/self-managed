@@ -2,8 +2,8 @@ apiVersion: v2
 name: r2devops
 description: Helm chart for R2Devops
 type: application
-version: 0.8.2
-appVersion: "1.20.2"
+version: "0.9.0"
+appVersion: "1.21.0"
 dependencies:
   # ref. https://k8s.ory.sh/helm/kratos.html
   - name: kratos
@@ -32,4 +32,6 @@ maintainers:
     email: slongo@klanik.com
   - name: thomasboni
     email: thomas@r2devops.io
+  - name: Totara-thib
+    email: thibaud@r2devops.io
 home: https://gitlab.com/r2devops/self-managed/charts/r2devops
