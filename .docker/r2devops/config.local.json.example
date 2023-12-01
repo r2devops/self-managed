@@ -1,0 +1,9 @@
+{
+  "appTitle": "R2Devops",
+  "apiUrl": "http://localhost:3001",
+  "apiUrlInternal": "http://jobs:3000",
+  "apiUrlIdentities": "http://localhost:3002",
+  "gitLabApiUrl": "GITLAB_INSTANCE_DOMAIN",
+  "selfHosted": true,
+  "docUrl": "https://docs.r2devops.io"
+}
