@@ -120,8 +120,6 @@ spec:
               value: "10000000000"
             - name: GITLEAKS_PATH
               value: "/opt/gitleaks"
-            - name: COMPLIANT_LABELS
-              value: "Lint,Test,Build,Security,Deploy"
 
             {{- if ne $.Values.postgresql.global.postgresql.auth.existingSecret "" }}
             - name: JOBS_DB_PASSWORD
