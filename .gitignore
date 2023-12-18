@@ -4,3 +4,11 @@ backups/*
 **/charts/*.tgz
 temp.*
 values_mine.yaml
+
+### certificates ###
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.priv

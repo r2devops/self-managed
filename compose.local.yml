@@ -35,11 +35,6 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_LIST_TASK_PROJECT_ANALYSIS=project_analysis
       - GITLEAKS_PATH="/opt/gitleaks"
       - PROJECTS_LIMIT_KEY=$PROJECTS_LIMIT_KEY
-      # Below variables are not used from 1.8.0 We keep it here for
-      # compatibility reasons
-      - JOBS_REDIS_SET_TPL_SYNC=templates_sync
-      - JOBS_REDIS_SET_TPL_PROCESSING=templates_processing
-      - JOBS_REDIS_SET_TPL_MAX_SIZE=1000
     restart: unless-stopped
     depends_on:
       - postgres
