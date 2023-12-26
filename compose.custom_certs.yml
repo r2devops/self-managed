@@ -34,7 +34,6 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_LIST_TASK_TPL_SYNC=templates_sync
       - JOBS_REDIS_LIST_TASK_PROJECT_ANALYSIS=project_analysis
       - GITLEAKS_PATH="/opt/gitleaks"
-      - PROJECTS_LIMIT_KEY=$PROJECTS_LIMIT_KEY
     restart: unless-stopped
     depends_on:
       - postgres

@@ -39,12 +39,12 @@ jobs:
 
   # Not using secret for license (comment if you use secret)
   extraEnv:
-    - name: PROJECTS_LIMIT_KEY
+    - name: LICENSE
       value: "<license-key>"
 
   # Using existing secret for license (uncomment if you use secret)
   # extraEnv:
-  #   - name: PROJECTS_LIMIT_KEY
+  #   - name: LICENSE
   #     valueFrom:
   #       secretKeyRef:
   #         name: "r2devops-secret"
@@ -52,6 +52,7 @@ jobs:
 
 gitlab:
   domain: "https://gitlab.com"
+  organization: ""
 
 worker:
   enabled: true

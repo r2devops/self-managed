@@ -76,6 +76,8 @@ spec:
               value: "Europe/Paris"
             - name: JOBS_GITLAB_URL
               value: "{{ $.Values.gitlab.domain }}"
+            - name: ORGANIZATION
+              value: "{{ $.Values.gitlab.organization }}"
             - name: JOBS_AGENT
               value: "R2Devops-jobs/1.0.0/go"
             - name: JOBS_KRATOS_DEBUG
