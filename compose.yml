@@ -32,7 +32,7 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_SET_NAMESPACES=namespaces
       - JOBS_REDIS_SET_NAMESPACES_TTL=120h
       - JOBS_REDIS_LIST_TASK_TPL_SYNC=templates_sync
-      - JOBS_REDIS_LIST_TASK_PROJECT_ANALYSIS=project_analysis
+      - JOBS_REDIS_LIST_TASK_ANALYSIS=analyses
       - GITLEAKS_PATH="/opt/gitleaks"
     restart: unless-stopped
     depends_on:
