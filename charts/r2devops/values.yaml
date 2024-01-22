@@ -60,7 +60,7 @@ worker:
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
   tag: v1.27.0
-  replicaCount: 5
+  replicaCount: 10
   args:
     - "./app"
     - "--worker"
