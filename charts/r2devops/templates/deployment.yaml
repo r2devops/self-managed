@@ -180,7 +180,7 @@ spec:
               readOnly: true
           {{- if eq .type "frontend" }}
             - name: config-volume
-              mountPath: /app/.next/server/app/api/config.body
+              mountPath: /app/.next/server/app/config.body
               subPath: config.body
           {{- end }}
 

@@ -252,7 +252,7 @@ services:
     volumes:
       - type: bind
         source: ./.docker/r2devops/config.json
-        target: /app/.next/server/app/api/config.body
+        target: /app/.next/server/app/config.body
     expose:
       - "3000"
     labels:
