@@ -1,6 +1,4 @@
 tls:
   certificates:
-    - certFile: /certs/r2devops_fullchain.pem 
+    - certFile: /certs/r2devops_fullchain.pem
       keyFile: /certs/r2devops_privkey.pem
-    - certFile: /certs/api.r2devops_fullchain.pem 
-      keyFile: /certs/api.r2devops_privkey.pem

@@ -1,6 +1,6 @@
 {
   "appTitle": "R2Devops",
-  "apiUrl": "http://localhost:3001",
+  "apiUrl": "http://localhost:3001/api",
   "apiUrlInternal": "http://jobs:3000",
   "apiUrlIdentities": "http://localhost:3002",
   "gitLabApiUrl": "GITLAB_INSTANCE_DOMAIN",
