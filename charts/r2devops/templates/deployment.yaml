@@ -83,7 +83,7 @@ spec:
             - name: JOBS_KRATOS_DEBUG
               value: "false"
             - name: JOBS_API_DOMAIN
-              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/job"
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/api"
             - name: JOBS_CORS_ORIGIN
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: SERVICE_KRATOS_URL

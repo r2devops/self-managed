@@ -30,8 +30,8 @@ jobs:
   tag: v1.28.0
   replicaCount: 1
   port: 3000
-  livenessEndpoint: "/job/health/alive"
-  readinesspoint: "/job/health/ready"
+  livenessEndpoint: "/api/health/alive"
+  readinesspoint: "/api/health/ready"
   host: ""
   tls:
     secretName: ""
