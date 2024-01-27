@@ -19,7 +19,15 @@ spec:
       http:
         {{- if eq .type "backend" }}
         paths:
+          # /job is legacy API path
           - path: /job
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .name }}
+                port:
+                  number: {{ .port }}
+          - path: /api
             pathType: Prefix
             backend:
               service:

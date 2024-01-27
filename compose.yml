@@ -12,7 +12,7 @@ x-jobs-common: &jobs-common
       - JOBS_DB_PORT=5432
       - JOBS_DB_SSLMODE=disable
       - JOBS_DB_TIMEZONE=Europe/Paris
-      - JOBS_API_DOMAIN=https://$API_URL/job
+      - JOBS_API_DOMAIN=https://$API_URL
       - JOBS_AGENT=R2Devops-jobs/1.0.0/go
       - JOBS_AP_FILE_MAX_SIZE=100000
       - JOBS_AP_FILE_MAX_NUMBER=250
@@ -117,13 +117,13 @@ services:
         - DSN=$KRATOS_DSN
         - SELFSERVICE_METHODS_OIDC_CONFIG_PROVIDERS=$GITLAB_OIDC
         - SERVE_PUBLIC_BASE_URL=https://$KRATOS_URL
-        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://$FRONTEND_URL*
-        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_URL/u/signin
-        - SELFSERVICE_WHITELISTED_RETURN_URLS=https://$FRONTEND_URL
-        - SELFSERVICE_FLOWS_ERROR_UI_URL=https://$FRONTEND_URL
-        - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://$FRONTEND_URL/u/signin
-        - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://$FRONTEND_URL/u/dashboard/profile
-        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_URL
+        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://$FRONTEND_DOMAIN*
+        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_DOMAIN/u/signin
+        - SELFSERVICE_WHITELISTED_RETURN_URLS=https://$FRONTEND_DOMAIN
+        - SELFSERVICE_FLOWS_ERROR_UI_URL=https://$FRONTEND_DOMAIN
+        - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://$FRONTEND_DOMAIN/u/signin
+        - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://$FRONTEND_DOMAIN/dashboard/profile
+        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_DOMAIN
         - COOKIES_DOMAIN=$DOMAIN_NAME
         - SECRETS_COOKIE=$KRATOS_SECRETS_COOKIE
         - SECRETS_CIPHER=$KRATOS_SECRETS_CIPHER
@@ -131,7 +131,7 @@ services:
         - LOG_LEVEL=info
         - LOG_FORMAT=text
       labels:
-        - "traefik.http.routers.kratos.rule=Host(\"$KRATOS_URL_WITHOUT_PATH\")&&PathPrefix(\"$KRATOS_PATH\")"
+        - "traefik.http.routers.kratos.rule=Host(\"$KRATOS_DOMAIN\")&&PathPrefix(\"$KRATOS_PATH\")"
         - "traefik.http.routers.kratos.middlewares=kratos-stripprefix"
         - "traefik.http.middlewares.kratos-stripprefix.stripprefix.prefixes=$KRATOS_PATH"
         - "traefik.http.routers.kratos.entrypoints=websecure"
@@ -162,7 +162,7 @@ services:
     expose:
       - "80"
     labels:
-      - "traefik.http.routers.api.rule=Host(\"$API_URL\")"
+      - "traefik.http.routers.api.rule=Host(\"$API_DOMAIN\")&&PathPrefix(\"$API_PATH\")"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=le"
@@ -256,7 +256,7 @@ services:
     expose:
       - "3000"
     labels:
-      - "traefik.http.routers.front.rule=Host(`${FRONTEND_URL}`)"
+      - "traefik.http.routers.front.rule=Host(`${FRONTEND_DOMAIN}`)"
       - "traefik.http.routers.front.entrypoints=websecure"
       - "traefik.http.routers.front.tls=true"
       - "traefik.http.routers.front.tls.certresolver=le"
