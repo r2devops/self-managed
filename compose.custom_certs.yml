@@ -8,17 +8,13 @@ x-jobs-common: &jobs-common
       - JOBS_LISTEN_ADDR=0.0.0.0
       - JOBS_LISTEN_PORT=80
       - JOBS_CORS_ORIGIN=https://$DOMAIN_NAME
+      - JOBS_FRONTEND_URL=https://$DOMAIN_NAME
+      - JOBS_SESSION_TTL=168h
       - JOBS_DB_HOST=postgres
       - JOBS_DB_PORT=5432
       - JOBS_DB_SSLMODE=disable
       - JOBS_DB_TIMEZONE=Europe/Paris
       - JOBS_API_DOMAIN=https://$API_URL
-      - JOBS_AGENT=R2Devops-jobs/1.0.0/go
-      - JOBS_AP_FILE_MAX_SIZE=100000
-      - JOBS_AP_FILE_MAX_NUMBER=250
-      - JOBS_AP_FILE_CLONE_TIMEOUT=10000000000
-      - SERVICE_KRATOS_URL=http://kratos:4433
-      - JOBS_KRATOS_DEBUG=false
       - LOG_LEVEL=info
       - LOG_FORMATTER=text
       - S3_HOST=minio:9000
@@ -29,10 +25,7 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_PORT=6379
       - JOBS_REDIS_DB=0
       - JOBS_REDIS_USER=default
-      - JOBS_REDIS_SET_NAMESPACES=namespaces
       - JOBS_REDIS_SET_NAMESPACES_TTL=120h
-      - JOBS_REDIS_LIST_TASK_TPL_SYNC=templates_sync
-      - JOBS_REDIS_LIST_TASK_ANALYSIS=analyses
       - GITLEAKS_PATH="/opt/gitleaks"
     restart: unless-stopped
     depends_on:
@@ -87,74 +80,6 @@ services:
     networks:
       - intranet
 
-  kratos-migrate:
-    image: oryd/kratos:v0.8.2-alpha.1
-    environment:
-      - DSN=$KRATOS_DSN
-    volumes:
-      - type: bind
-        source: ./.docker/kratos
-        target: /etc/config/kratos
-    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
-    restart: on-failure
-    networks:
-      - intranet
-
-  kratos:
-      depends_on:
-        - kratos-migrate
-      image: oryd/kratos:v0.8.2-alpha.1
-      expose:
-        - "4433"
-        - "4434"
-      restart: unless-stopped
-      command: serve -c /etc/config/kratos/kratos.yml --watch-courier
-      volumes:
-        - type: bind
-          source: ./.docker/kratos
-          target: /etc/config/kratos
-      environment:
-        - DSN=$KRATOS_DSN
-        - SELFSERVICE_METHODS_OIDC_CONFIG_PROVIDERS=$GITLAB_OIDC
-        - SERVE_PUBLIC_BASE_URL=https://$KRATOS_URL
-        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=https://$FRONTEND_DOMAIN*
-        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_DOMAIN/u/signin
-        - SELFSERVICE_WHITELISTED_RETURN_URLS=https://$FRONTEND_DOMAIN
-        - SELFSERVICE_FLOWS_ERROR_UI_URL=https://$FRONTEND_DOMAIN
-        - SELFSERVICE_FLOWS_LOGIN_UI_URL=https://$FRONTEND_DOMAIN/u/signin
-        - SELFSERVICE_FLOWS_SETTINGS_UI_URL=https://$FRONTEND_DOMAIN/dashboard/profile
-        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_DOMAIN
-        - COOKIES_DOMAIN=$DOMAIN_NAME
-        - SECRETS_COOKIE=$KRATOS_SECRETS_COOKIE
-        - SECRETS_CIPHER=$KRATOS_SECRETS_CIPHER
-        - SECRETS_DEFAULT=$KRATOS_SECRETS_DEFAULT
-        - LOG_LEVEL=info
-        - LOG_FORMAT=text
-      labels:
-        - "traefik.http.routers.kratos.rule=Host(\"$KRATOS_DOMAIN\")&&PathPrefix(\"$KRATOS_PATH\")"
-        - "traefik.http.routers.kratos.middlewares=kratos-stripprefix"
-        - "traefik.http.middlewares.kratos-stripprefix.stripprefix.prefixes=$KRATOS_PATH"
-        - "traefik.http.routers.kratos.entrypoints=websecure"
-        - "traefik.http.routers.kratos.tls=true"
-      networks:
-        - intranet
-
-  postgres_kratos:
-    image: postgres:13
-    restart: unless-stopped
-    expose:
-      - "5432"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=$KRATOS_DB_USER
-      - POSTGRES_PASSWORD=$KRATOS_DB_PASSWORD
-      - POSTGRES_DB=$KRATOS_DB_NAME
-    networks:
-      - intranet
-    volumes:
-      - postgres_kratos-data:/var/lib/postgresql/data
-
   jobs:
     <<: *jobs-common
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
@@ -201,21 +126,12 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    expose:
-      - 1025
-      - 8025
-    networks:
-      - intranet
-
   traefik:
     image: traefik:v2.9
     restart: unless-stopped
     depends_on:
       - frontend
       - jobs
-      - kratos
     ports:
       - "80:80"
       - "443:443"
@@ -263,5 +179,4 @@ networks:
 volumes:
   minio-data:
   postgres-data:
-  postgres_kratos-data:
   minio-data_config:
