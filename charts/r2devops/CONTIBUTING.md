@@ -11,7 +11,7 @@ helm repo add ory https://k8s.ory.sh/helm/charts
 helm repo update
 
 # searches for the latest versions
-helm search repo -l [kratos|minio|redis|postgresql] --versions
+helm search repo -l [minio|redis|postgresql] --versions
 
 # manual action: update version number in Chart.yaml
 
@@ -26,9 +26,6 @@ cp examples/values_local.yaml values_mine.yaml
 sed -i "s/MINIO_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
 sed -i "s/POSTGRESQL_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
 sed -i "s/REDIS_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
-sed -i "s/KRATOS_SECRETS_DEFAULT/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
-sed -i "s/KRATOS_SECRETS_COOKIE/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
-sed -i "s/KRATOS_SECRETS_CIPHER/$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c32)/g" values_mine.yaml
 ```
 
 💡 Follow the [documentation](https://docs.r2devops.io/self-managed/kubernetes/#gitlab-oidc) to retrieve values of `GITLAB_CLIENT_ID` and `GITLAB_CLIENT_ID` in `values_mine.yaml`
@@ -57,12 +54,7 @@ kubectl create ns r2devops-beta
 # sets the right URLs by replacing the string in values_mine.yaml
 sed -i "s/R2DEVOPS_DOMAIN/r2devops.${NGINX_PUBLIC_IP}.sslip.io/g" values_mine.yaml
 
-# applies the manifest (add "--debug > output.yaml" in case of issue)
-helm install r2devops . -f values.yaml -f values_mine.yaml \
---set kratos.dependency.enabled=false \
---namespace r2devops-beta
-
-# installs completely with kratos
+# installs
 helm upgrade r2devops . -f values.yaml -f values_mine.yaml --namespace r2devops-beta
 
 # makes sure everything runs fine

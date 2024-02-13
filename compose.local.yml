@@ -8,17 +8,13 @@ x-jobs-common: &jobs-common
       - JOBS_LISTEN_ADDR=0.0.0.0
       - JOBS_LISTEN_PORT=3000
       - JOBS_CORS_ORIGIN=http://$FRONTEND_DOMAIN
+      - JOBS_FRONTEND_URL=https://$FRONTEND_DOMAIN
+      - JOBS_SESSION_TTL=168h
       - JOBS_DB_HOST=postgres
       - JOBS_DB_PORT=5432
       - JOBS_DB_SSLMODE=disable
       - JOBS_DB_TIMEZONE=Europe/Paris
       - JOBS_API_DOMAIN=http://$API_URL
-      - JOBS_AGENT=R2Devops-jobs/1.0.0/go
-      - JOBS_AP_FILE_MAX_SIZE=100000
-      - JOBS_AP_FILE_MAX_NUMBER=250
-      - JOBS_AP_FILE_CLONE_TIMEOUT=10000000000
-      - SERVICE_KRATOS_URL=http://kratos:4433
-      - JOBS_KRATOS_DEBUG=false
       - LOG_LEVEL=info
       - LOG_FORMATTER=text
       - S3_HOST=minio:9000
@@ -29,10 +25,7 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_PORT=6379
       - JOBS_REDIS_DB=0
       - JOBS_REDIS_USER=default
-      - JOBS_REDIS_SET_NAMESPACES=namespaces
       - JOBS_REDIS_SET_NAMESPACES_TTL=120h
-      - JOBS_REDIS_LIST_TASK_TPL_SYNC=templates_sync
-      - JOBS_REDIS_LIST_TASK_ANALYSIS=analyses
       - GITLEAKS_PATH="/opt/gitleaks"
     restart: unless-stopped
     depends_on:
@@ -83,70 +76,6 @@ services:
     networks:
       - intranet
 
-  kratos-migrate:
-    image: oryd/kratos:v0.8.2-alpha.1
-    environment:
-      - DSN=$KRATOS_DSN
-    volumes:
-      - type: bind
-        source: ./.docker/kratos
-        target: /etc/config/kratos
-    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
-    restart: on-failure
-    networks:
-      - intranet
-
-  kratos:
-      depends_on:
-        - kratos-migrate
-      image: oryd/kratos:v0.8.2-alpha.1
-      expose:
-        - "4433"
-        - "4434"
-      ports:
-        - "3002:4433"
-      restart: unless-stopped
-      command: serve -c /etc/config/kratos/kratos.yml --watch-courier
-      volumes:
-        - type: bind
-          source: ./.docker/kratos
-          target: /etc/config/kratos
-      environment:
-        - DSN=$KRATOS_DSN
-        - SELFSERVICE_METHODS_OIDC_CONFIG_PROVIDERS=$GITLAB_OIDC
-        - SERVE_PUBLIC_BASE_URL=http://$KRATOS_URL
-        - SERVE_PUBLIC_CORS_ALLOWED_ORIGINS=http://$FRONTEND_DOMAIN
-        - SELFSERVICE_DEFAULT_BROWSER_RETURN_URL=http://$FRONTEND_DOMAIN/u/signin
-        - SELFSERVICE_WHITELISTED_RETURN_URLS=http://$FRONTEND_DOMAIN
-        - SELFSERVICE_FLOWS_ERROR_UI_URL=http://$FRONTEND_DOMAIN
-        - SELFSERVICE_FLOWS_LOGIN_UI_URL=http://$FRONTEND_DOMAIN/u/signin
-        - SELFSERVICE_FLOWS_SETTINGS_UI_URL=http://$FRONTEND_DOMAIN/u/dashboard/profile
-        - SELFSERVICE_FLOWS_LOGOUT_AFTER_DEFAULT_BROWSER_RETURN_URL=https://$FRONTEND_DOMAIN
-        - COOKIES_DOMAIN=$FRONTEND_DOMAIN
-        - SECRETS_COOKIE=$KRATOS_SECRETS_COOKIE
-        - SECRETS_CIPHER=$KRATOS_SECRETS_CIPHER
-        - SECRETS_DEFAULT=$KRATOS_SECRETS_DEFAULT
-        - LOG_LEVEL=info
-        - LOG_FORMAT=text
-      networks:
-        - intranet
-
-  postgres_kratos:
-    image: postgres:13
-    restart: unless-stopped
-    expose:
-      - "5432"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=$KRATOS_DB_USER
-      - POSTGRES_PASSWORD=$KRATOS_DB_PASSWORD
-      - POSTGRES_DB=$KRATOS_DB_NAME
-    networks:
-      - intranet
-    volumes:
-      - postgres_kratos-data:/var/lib/postgresql/data
-
   jobs:
     <<: *jobs-common
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
@@ -187,14 +116,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-  mailhog:
-    image: mailhog/mailhog:latest
-    expose:
-      - 1025
-      - 8025
-    networks:
-      - intranet
-
   frontend:
     image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
     restart: unless-stopped
@@ -213,5 +134,4 @@ networks:
 volumes:
   minio-data:
   postgres-data:
-  postgres_kratos-data:
   minio-data_config:

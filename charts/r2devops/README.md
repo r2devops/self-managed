@@ -24,10 +24,7 @@ kubectl create ns $R2DEVOPS_NS
 # adds R2Devops Helm repository
 helm repo add r2devops https://charts.r2devops.io/
 
-# installs R2Devops chart with Kratos disabled
-helm install -n $R2DEVOPS_NS r2devops r2devops/r2devops --set kratos.dependency.enabled=false -f custom_values.yaml
-
-# upgrades R2Devops chart with Kratos
+# upgrades R2Devops chart
 helm upgrade --install -n $R2DEVOPS_NS r2devops r2devops/r2devops -f custom_values.yaml
 
 # checks all pods are running after some time

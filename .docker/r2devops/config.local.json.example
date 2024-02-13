@@ -3,7 +3,7 @@
   "apiUrl": "http://localhost:3001/api",
   "apiUrlInternal": "http://jobs:3000",
   "apiUrlIdentities": "http://localhost:3002",
-  "gitLabApiUrl": "GITLAB_INSTANCE_DOMAIN",
+  "gitLabApiUrl": "GITLAB_INSTANCE_URL",
   "selfHosted": true,
   "docUrl": "https://docs.r2devops.io"
 }
