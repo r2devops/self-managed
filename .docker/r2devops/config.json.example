@@ -1,7 +1,6 @@
 {
   "appTitle": "R2Devops",
   "apiUrl": "https://r2devops.<domain_name>/api",
-  "apiUrlIdentities": "https://r2devops.<domain_name>/kratos/public",
   "gitLabApiUrl": "https://<gitlab_intance_domain>",
   "selfHosted": true,
   "docUrl": "https://docs.r2devops.io"
