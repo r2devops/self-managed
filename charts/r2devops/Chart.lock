@@ -1,7 +1,4 @@
 dependencies:
-- name: kratos
-  repository: https://k8s.ory.sh/helm/charts
-  version: 0.21.5
 - name: minio
   repository: https://charts.bitnami.com/bitnami
   version: 12.6.5
@@ -11,5 +8,5 @@ dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 11.9.13
-digest: sha256:05e8ac6726014bf4adf6b56257ad7a48cd537cc4301ed1446be55970e33ae32d
-generated: "2023-07-24T15:32:34.403472+02:00"
+digest: sha256:7e8013d0e866a95310d1e1b15ef7269e10eeccf2a6f7c4fee82641ff8fa91a69
+generated: "2024-02-16T19:44:47.898983+01:00"

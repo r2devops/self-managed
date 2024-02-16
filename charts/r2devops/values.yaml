@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: docker.io/r2devopsio/frontend
-  tag: v1.26.9
+  tag: v1.27.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/"
@@ -27,7 +27,7 @@ jobs:
   type: backend
   name: r2devops-jobs
   image: docker.io/r2devopsio/jobs
-  tag: v1.28.4
+  tag: v1.29.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/api/health/alive"
@@ -35,7 +35,8 @@ jobs:
   host: ""
   tls:
     secretName: ""
-  sessionTTL: "168h" # Duration of users' session
+  # Duration of users' session
+  sessionTTL: "168h"
   resources: {}
 
   # Not using secret for R2devops secrets (comment if you use secret)
@@ -81,7 +82,7 @@ worker:
   type: backend
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
-  tag: v1.28.4
+  tag: v1.29.0
   replicaCount: 10
   args:
     - "./app"
