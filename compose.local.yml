@@ -8,7 +8,7 @@ x-jobs-common: &jobs-common
       - JOBS_LISTEN_ADDR=0.0.0.0
       - JOBS_LISTEN_PORT=3000
       - JOBS_CORS_ORIGIN=http://$FRONTEND_DOMAIN
-      - JOBS_FRONTEND_URL=https://$FRONTEND_DOMAIN
+      - JOBS_FRONTEND_URL=http://$FRONTEND_DOMAIN
       - JOBS_SESSION_TTL=168h
       - JOBS_DB_HOST=postgres
       - JOBS_DB_PORT=5432
