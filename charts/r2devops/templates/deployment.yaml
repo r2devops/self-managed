@@ -83,7 +83,7 @@ spec:
             - name: JOBS_API_DOMAIN
               value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/api"
             - name: JOBS_FRONTEND_URL
-              value: "https://{{ default $.Values.front.name $.Values.front.host }}/api"
+              value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: JOBS_CORS_ORIGIN
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: S3_HOST
