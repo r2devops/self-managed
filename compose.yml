@@ -49,12 +49,6 @@ services:
       - minio-data:/export
       - minio-data_config:/root/.minio
     command: server /export
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 30s
     labels:
       - "traefik.enable=false"
     networks:
