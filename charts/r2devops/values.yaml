@@ -90,6 +90,7 @@ worker:
   livenessEndpoint: "/job/health/alive"
   readinesspoint: "/job/health/ready"
   extraEnv: []
+  addJobsExtraEnv: true
   host: ""
   tls: {}
   resources: {}

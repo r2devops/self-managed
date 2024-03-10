@@ -52,6 +52,9 @@ spec:
           {{- if .extraEnv }}
             {{- toYaml .extraEnv | nindent 12 }}
           {{- end }}
+          {{- if .addJobsExtraEnv }}
+            {{- toYaml $.Values.jobs.extraEnv | nindent 12 }}
+          {{- end }}
             - name: HOST_IP
               valueFrom:
                 fieldRef:
