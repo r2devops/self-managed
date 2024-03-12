@@ -2,6 +2,39 @@ apiVersion: v1
 entries:
   r2devops:
   - apiVersion: v2
+    appVersion: 1.34.5
+    created: "2024-03-12T17:07:47.018305806Z"
+    dependencies:
+    - condition: minio.dependency.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.6.5
+    - condition: redis.dependency.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.13.2
+    - condition: postgresql.dependency.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: Helm chart for R2Devops
+    digest: 806c54da4d1ee397be279c331c373f4e41a96b731f90f8eac58aaed21e620563
+    home: https://gitlab.com/r2devops/self-managed/charts/r2devops
+    maintainers:
+    - email: bertrand@devpro.fr
+      name: devpro
+    - email: slongo@klanik.com
+      name: gemini-jtff
+    - email: thomas@r2devops.io
+      name: thomasboni
+    - email: thibaud@r2devops.io
+      name: Totara-thib
+    name: r2devops
+    type: application
+    urls:
+    - https://github.com/r2devops/self-managed/releases/download/r2devops-1.34.5/r2devops-1.34.5.tgz
+    version: 1.34.5
+  - apiVersion: v2
     appVersion: 1.34.4
     created: "2024-03-11T13:35:32.841666934Z"
     dependencies:
@@ -2457,4 +2490,4 @@ entries:
     urls:
     - https://github.com/r2devops/self-managed/releases/download/r2devops-0.1.0/r2devops-0.1.0.tgz
     version: 0.1.0
-generated: "2024-03-11T13:35:32.841874251Z"
+generated: "2024-03-12T17:07:47.018489137Z"
