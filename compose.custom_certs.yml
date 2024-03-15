@@ -71,7 +71,7 @@ services:
     command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
     deploy:
       mode: replicated
-      replicas: 10
+      replicas: 30
     labels:
       - "traefik.enable=false"
 
