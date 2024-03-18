@@ -27,6 +27,8 @@ x-jobs-common: &jobs-common
     depends_on:
       - postgres
       - redis
+    volumes:
+      - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     networks:
       - intranet
 
@@ -43,6 +45,7 @@ services:
       - type: bind
         source: ./.docker/r2devops/config.json
         target: /app/.next/server/app/config.body
+      - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     expose:
       - "3000"
     labels:
