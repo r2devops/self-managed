@@ -3,5 +3,6 @@
   "apiUrl": "https://r2devops.<domain_name>/api",
   "gitLabApiUrl": "https://<gitlab_intance_domain>",
   "selfHosted": true,
-  "docUrl": "https://docs.r2devops.io"
+  "docUrl": "https://docs.r2devops.io",
+  "debug": false
 }
