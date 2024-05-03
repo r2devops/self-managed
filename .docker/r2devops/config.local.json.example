@@ -4,5 +4,6 @@
   "apiUrlInternal": "http://jobs:3000/api",
   "gitLabApiUrl": "GITLAB_INSTANCE_URL",
   "selfHosted": true,
-  "docUrl": "https://docs.r2devops.io"
+  "docUrl": "https://docs.r2devops.io",
+  "debug": false
 }
