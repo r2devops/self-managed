@@ -25,7 +25,7 @@ x-jobs-common: &jobs-common
       - JOBS_REDIS_PORT=6379
       - JOBS_REDIS_DB=0
       - JOBS_REDIS_USER=default
-      - JOBS_REDIS_SET_NAMESPACES_TTL=120h
+      - JOBS_REDIS_SET_NAMESPACES_TTL=30s
       - GITLEAKS_PATH=/opt/gitleaks
     restart: unless-stopped
     depends_on:
