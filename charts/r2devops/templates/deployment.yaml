@@ -108,7 +108,7 @@ spec:
             - name: JOBS_REDIS_USER
               value: "{{ $.Values.redis.custom.user }}"
             - name: JOBS_REDIS_SET_NAMESPACES_TTL
-              value: "720h"
+              value: "30s"
             - name: GITLEAKS_PATH
               value: "/opt/gitleaks"
 
