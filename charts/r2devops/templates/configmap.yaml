@@ -13,7 +13,9 @@ data:
       "apiUrl": "https://{{ .Values.jobs.host }}/api",
       "gitLabApiUrl": "{{ .Values.gitlab.domain }}",
       "selfHosted": true,
-      "docUrl": "https://docs.r2devops.io"
+      "docUrl": "https://docs.r2devops.io",
+      "debug": false,
+      "allowExternalQueries": true
     }
 
 ---
