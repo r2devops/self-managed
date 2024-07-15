@@ -4,5 +4,6 @@
   "gitLabApiUrl": "https://<gitlab_intance_domain>",
   "selfHosted": true,
   "docUrl": "https://docs.r2devops.io",
-  "debug": false
+  "debug": false,
+  "allowExternalQueries": true
 }
