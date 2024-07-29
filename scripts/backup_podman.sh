@@ -111,3 +111,4 @@ if [ -n "$S3_DESTINATION" ]; then
 else
     echo "⏭️ Skipping S3 upload as AWS credentials or bucket name were not provided."
 fi
+
