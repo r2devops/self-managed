@@ -1,94 +1,131 @@
 #!/bin/bash
 
-# This script restores the data from an archive
+# This script restores your data from a backup archive.
 # Launch it in the docker compose folder
-# Usage: ./restore.sh <backup_file_path>
 
-BACKUP_FILE=$1
+# Usage function
+usage() {
+    echo "Usage: $0 pg-version <backup_file_path_or_s3_url> [s3-endpoint] [s3-access-key] [s3-secret-key] [s3-region]"
+    echo "Restore R2Devops. You must run this CLI from the root of your R2Devops local git repository"
+    echo
+    echo "Options:"
+    echo "  pg-version                  Version of PostgreSQL you are using"
+    echo "  backup_file_path_or_s3_url  Path to the backup file to restore or S3 URL (s3://bucket-name/folder/backup-file.tar.gz)"
+    echo "  s3-endpoint                 S3 endpoint (https://s3-endpoint-url)"
+    echo "  s3-region                   S3 bucket region"
+    echo "  s3-access-key               S3 Access Key ID"
+    echo "  s3-secret-key               S3 Secret Access Key"
+    echo "  -h, --help                  Display this help message"
+}
 
+# Define some consts
 PROJECT_NAME=r2devops
 
-ALPINE_VERSION=3.16
-PG_VERSION=13
+# Get arguments
+PG_VERSION=$1
+BACKUP_SOURCE=$2
+S3_ENDPOINT=$3
+S3_REGION=$4
+S3_ACCESS_KEY=$5
+S3_SECRET_KEY=$6
 
-if [ -z $BACKUP_FILE ]; then
-  printf "Error: backup file path is missing\nUsage: ./restore.sh <backup_file_path>\n"
+
+# Check if --help or -h is provided as the first argument
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    usage
+    exit 1
+fi
+
+# Ensure a backup file path or S3 URL is specified
+if [ -z "$BACKUP_SOURCE" ]; then
+  printf "Error: backup file path or S3 URL is missing\n"
+  usage
   exit 1
 fi
 
-BACKUP_FILE=$(realpath $BACKUP_FILE)
+# Temporary directory for downloaded backup if from S3
+TMP_DIR=""
+LOCAL_BACKUP_FILE=""
 
-if [ -f $BACKUP_FILE ]; then
-    echo "🛳️ Start restoring data..."
+# Check if the backup source is an S3 URL
+if [[ $BACKUP_SOURCE == s3://* ]]; then
+    echo "🔄 Downloading backup file from S3..."
 
-    BACKUP_DIR=$(echo $BACKUP_FILE | cut -f 1 -d '.')
-    tar xf $BACKUP_FILE -C $(dirname $BACKUP_FILE)
+    # Parse S3 URL to get bucket and key
+    S3_BUCKET=$(echo $BACKUP_SOURCE | sed -n 's|^s3://\([^/]*\).*|\1|p')
+    S3_KEY=$(echo $BACKUP_SOURCE | sed -n 's|^s3://[^/]*/\(.*\)|\1|p')
+    LOCAL_BACKUP_FILE=$(basename $S3_KEY)
+    TMP_DIR=$(mktemp -d)
 
-    echo "Restoring the .env file... (1/5)"
-    if cp $BACKUP_DIR/.env ./.env; then
-        echo "✅ The .env file has been restored"
-    	source .env
+    # Configure AWS credentials temporarily
+    export AWS_ACCESS_KEY_ID=$S3_ACCESS_KEY
+    export AWS_SECRET_ACCESS_KEY=$S3_SECRET_KEY
+
+    # Prepare the AWS CLI command
+    S3_CLI_CMD="aws s3 cp $BACKUP_SOURCE $TMP_DIR/$LOCAL_BACKUP_FILE --region $S3_REGION --endpoint-url $S3_ENDPOINT"
+
+    # Download the file from S3
+    if eval $S3_CLI_CMD; then
+        echo "✅ Backup file downloaded from S3 to $TMP_DIR/$LOCAL_BACKUP_FILE"
     else
-        echo "❌ Error while restoring the .env file"
-	exit 1
+        echo "❌ Error while downloading backup file from S3"
+        exit 1
     fi
+    BACKUP_FILE="$TMP_DIR/$LOCAL_BACKUP_FILE"
 
-    echo "Restoring the config.json file... (2/5)"
-    if cp $BACKUP_DIR/config.json ./config.json; then
-        echo "✅ The config.json file has been restored"
-    else
-        echo "❌ Error while restoring the config.json file"
-	exit 1
-    fi
+    # Unset AWS credentials after use
+    unset AWS_ACCESS_KEY_ID
+    unset AWS_SECRET_ACCESS_KEY
 
-    echo "Stopping all services..."
-    if docker compose stop; then
-        echo "✅ All services have been stopped"
-    else
-        echo "❌ Error while stopping services"
-	exit 1
-    fi
-
-    echo "Restoring the jobs database... (3/5)"
-    if docker compose start postgres && sleep 2; then
-        echo "Postgres service has been started"
-    else
-        echo "❌ Error while starting postgres service"
-	exit 1
-    fi
-    if docker run --rm --network=${PROJECT_NAME}_intranet -v $BACKUP_DIR:/backup -e PGPASSWORD=$JOBS_DB_PASSWORD -it postgres:$PG_VERSION /bin/bash -c "pg_restore -U jobs -h postgres -Ft -d jobs -c /backup/jobs_db_backup.tar"; then
-      	echo "✅ Jobs database has been restored"
-    else
-        echo "❌ Error while restoring jobs database"
-	exit 1
-    fi
-
-    echo "Restoring the Minio bucket... (4/5)"
-    if docker run --rm --network=${PROJECT_NAME}_intranet --volumes-from ${PROJECT_NAME}-minio-1 -v $BACKUP_DIR:/backup -it alpine:$ALPINE_VERSION /bin/sh -c "rm -rf /export/$S3_BUCKET/*; cd /export/$S3_BUCKET/; tar xf /backup/minio_backup.tar"; then
-        echo "✅ Minio bucket has been restored"
-    else
-        echo "❌ Error while restoring Minio bucket"
-    fi
-
-    echo "Restoring the certificate... (5/5)"
-    if docker run --rm --network=${PROJECT_NAME}_intranet --volumes-from ${PROJECT_NAME}-traefik-1 -v $BACKUP_DIR:/backup -it alpine:$ALPINE_VERSION /bin/sh -c "cp /backup/acme.json acme"; then
-        echo "✅ The certificate has been restored"
-    else
-        echo "❌ Error while restoring the certificate"
-	exit 1
-    fi
-
-    echo "Starting all services..."
-    if docker compose up -d; then
-        echo "✅ All services have been started"
-    else
-        echo "❌ Error while starting services"
-	exit 1
-    fi
-
-    rm -rf $BACKUP_DIR
-    echo "✨ Restore completed!"
-  else
-      echo "❌ Backup file $BACKUP_FILE not found."
-      exit 1
+else
+    # Use the provided local backup file path
+    BACKUP_FILE=$(realpath $BACKUP_SOURCE)
 fi
+
+# Ensure the backup file exists
+if [ ! -f "$BACKUP_FILE" ]; then
+    printf "Error: backup file $BACKUP_FILE does not exist\n"
+    usage
+    exit 1
+fi
+
+echo "🛳️ Start restoring data..."
+
+# Extract the backup
+BACKUP_DIR=$(mktemp -d)
+tar xzf "$BACKUP_FILE" -C "$BACKUP_DIR"
+
+echo "Restoring the .env file..."
+if cp "$BACKUP_DIR/.env" ./.env; then
+    echo "✅ The .env file has been restored"
+    source .env
+else
+    echo "❌ Error while restoring the .env file"
+    exit 1
+fi
+
+echo "Restoring the config.json file..."
+if cp "$BACKUP_DIR/config.json" .docker/r2devops/config.json; then
+    echo "✅ The config.json file has been restored"
+else
+    echo "❌ Error while restoring the config.json file"
+    exit 1
+fi
+
+echo "Restoring the database..."
+if docker run --rm --network=${PROJECT_NAME}_intranet -v "$BACKUP_DIR":/backup -e PGPASSWORD=$JOBS_DB_PASSWORD -it postgres:$PG_VERSION /bin/bash -c "pg_restore -U $JOBS_DB_USER -h $JOBS_DB_HOST --if-exists -c -e -Ft -d $JOBS_DB_NAME /backup/db_backup.tar"; then
+
+    echo "✅ Database has been restored"
+else
+    echo "❌ Error while restoring database"
+    exit 1
+fi
+
+# Cleanup
+rm -rf "$BACKUP_DIR"
+if [ -n "$TMP_DIR" ]; then
+    rm -rf "$TMP_DIR"
+fi
+
+echo "🧹 Cleanup done"
+
