@@ -5,11 +5,6 @@ type: application
 version: "1.44.1"
 appVersion: "1.44.1"
 dependencies:
-  # ref. https://github.com/minio/minio/tree/master/helm/minio
-  - name: minio
-    version: 12.6.5   # appVersion: 2023.6.19
-    repository: https://charts.bitnami.com/bitnami
-    condition: minio.dependency.enabled
   # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis
   - name: redis
     version: 16.13.2  # appVersion: 6.2.7
