@@ -65,6 +65,7 @@ services:
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     expose:
       - "80"
+      - "9090"
     labels:
       - "traefik.http.routers.api.rule=Host(\"$API_DOMAIN\")&&PathPrefix(\"$API_PATH\")"
       - "traefik.http.routers.api.entrypoints=websecure"
@@ -77,6 +78,9 @@ services:
     deploy:
       mode: replicated
       replicas: 30
+      endpoint_mode: dnsrr
+    expose:
+      - "9090"
     labels:
       - "traefik.enable=false"
 
@@ -111,6 +115,22 @@ services:
       - intranet
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  prometheus:
+    image: bitnami/prometheus:2.54.1
+    expose:
+      - "9090"
+    labels:
+      - "traefik.http.routers.metrics.rule=Host(\"$API_DOMAIN\")&&PathPrefix(\"/api/v1/query\")"
+      - "traefik.http.routers.metrics.entrypoints=websecure"
+      - "traefik.http.routers.metrics.tls=true"
+      - "traefik.http.routers.metrics.tls.certresolver=le"
+    networks:
+      - intranet
+    volumes:
+      - .docker/prometheus/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: "root" # Required to access docker daemon for service discovery
 
   # Deprecated, we keep it only for compatibility
   minio:
