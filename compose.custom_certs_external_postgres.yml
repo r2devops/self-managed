@@ -60,6 +60,7 @@ services:
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     expose:
       - "80"
+      - "9090"
     labels:
       - "traefik.http.routers.api.rule=Host(\"$API_DOMAIN\")&&PathPrefix(\"$API_PATH\")"
       - "traefik.http.routers.api.entrypoints=websecure"
@@ -71,6 +72,8 @@ services:
     deploy:
       mode: replicated
       replicas: 30
+    expose:
+      - "9090"
     labels:
       - "traefik.enable=false"
 
