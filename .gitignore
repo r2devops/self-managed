@@ -12,3 +12,5 @@ values_mine.yaml
 *.cer
 *.der
 *.priv
+
+compose.custom.yml
