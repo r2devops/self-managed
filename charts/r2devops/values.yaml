@@ -27,7 +27,7 @@ jobs:
   type: backend
   name: r2devops-jobs
   image: docker.io/r2devopsio/jobs
-  tag: v1.46.2
+  tag: v1.47.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/api/health/alive"
@@ -82,7 +82,7 @@ worker:
   type: backend
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
-  tag: v1.46.2
+  tag: v1.47.0
   replicaCount: 20
   args:
     - "./app"
