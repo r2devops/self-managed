@@ -11,7 +11,7 @@ helm repo add ory https://k8s.ory.sh/helm/charts
 helm repo update
 
 # searches for the latest versions
-helm search repo -l [minio|redis|postgresql] --versions
+helm search repo -l [redis|postgresql] --versions
 
 # manual action: update version number in Chart.yaml
 
@@ -23,7 +23,6 @@ helm dependency update
 
 ```bash
 cp examples/values_local.yaml values_mine.yaml
-sed -i "s/MINIO_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
 sed -i "s/POSTGRESQL_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
 sed -i "s/REDIS_PASSWORD/$(openssl rand -hex 16)/g" values_mine.yaml
 ```
