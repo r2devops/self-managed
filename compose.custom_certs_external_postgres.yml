@@ -134,7 +134,7 @@ services:
   #################
 
   traefik:
-    image: traefik:v2.9
+    image: traefik:2
     restart: unless-stopped
     depends_on:
       - frontend
