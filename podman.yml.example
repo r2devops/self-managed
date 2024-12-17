@@ -1,0 +1,231 @@
+########################################################################
+# R2Devops configuration file                                          #
+# Community support                                                    #
+# Documentation: https://docs.r2devops.io/self-managed/podman/         #
+########################################################################
+# Redis
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+  - name: redis
+    image: redis:6
+    command: 
+    - redis-server
+    - --requirepass ${JOBS_REDIS_PASSWORD}
+    ports:
+    - containerPort: 6379
+    envFrom:
+    - configMapRef:
+        name: r2devops-envs
+        optional: false
+status: {}
+---
+# Postgres
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  containers:
+  - name: postgres
+    image: postgres:13
+    ports:
+    - containerPort: 5432
+      hostPort: 5432
+    env:
+    - name: POSTGRES_USER
+      value: "${JOBS_DB_USER}"
+    - name: POSTGRES_PASSWORD
+      value: "${JOBS_DB_PASSWORD}"
+    - name: POSTGRES_DB
+      value: "${JOBS_DB_NAME}"
+    volumeMounts:
+    - name: postgres-data
+      mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: postgres-data
+    PersistentVolumeClaim:
+      claimName: postgres-data
+status: {}
+---
+# R2DevOps Front
+apiVersion: v1
+kind: Pod
+metadata:
+  name: r2devops-front
+  labels:
+    traefik.http.routers.front.rule: Host(`${FRONTEND_DOMAIN}`)
+    traefik.http.routers.front.entrypoints: websecure
+    traefik.http.routers.front.tls: true
+    traefik.http.routers.front.tls.certresolver: le
+spec:
+  containers:
+  - name: frontend
+    image: docker.io/r2devopsio/frontend:${FRONTEND_IMAGE_TAG}
+    ports:
+    - containerPort: 3000
+      hostPort: 3000
+    volumeMounts:
+    - name: front-config
+      mountPath: /app/.next/server/app/config.body
+    - name: certs
+      mountPath: /usr/local/share/ca-certificates
+  volumes:
+  - name: front-config
+    hostPath:
+      path: ./.docker/r2devops/config.json
+  - name: certs
+    hostPath:
+      path: ./.docker/ca-certificates
+      type: Directory
+status: {}
+---
+# R2DevOps Job
+apiVersion: v1
+kind: Pod
+metadata:
+  name: r2devops-job
+  labels:
+    traefik.http.routers.api.rule: "Host(\"${API_DOMAIN}\")&&PathPrefix(\"${API_PATH}\")"
+    traefik.http.routers.api.entrypoints: websecure
+    traefik.http.routers.api.tls: true
+    traefik.http.routers.api.tls.certresolver: le
+spec:
+  initContainers:
+  - name: wait-for-services
+    image: busybox
+    command:
+    - "/bin/sh"
+    - "-c"
+    args:
+    - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
+  containers:
+  - name: jobs
+    image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+    command: ["/bin/sh", "-c", "sleep 10 && ./app"]
+    ports:
+    - containerPort: 80
+      hostPort: 81
+    - containerPort: 9090
+    envFrom:
+    - configMapRef:
+        name: r2devops-jobs
+        optional: false
+    - configMapRef:
+        name: r2devops-envs
+        optional: false
+    volumeMounts:
+    - name: certs
+      mountPath: /usr/local/share/ca-certificates
+  volumes:
+  - name: certs
+    hostPath:
+      path: ./.docker/ca-certificates
+      type: Directory
+status: {}
+---
+# R2DevOps workers
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: r2devops-workers-deployment
+spec:
+  selector:
+    matchLabels:
+      app: r2devops-workers
+  template:
+    metadata:
+      name: r2devops-workers
+      labels:
+        traefik.enable: false
+    spec:
+      replicas: 30
+      initContainers:
+      - name: wait-for-services
+        image: busybox
+        command:
+        - "/bin/sh"
+        - "-c"
+        args:
+        - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
+      containers:
+      - name: workers
+        image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+        command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+        ports:
+        - containerPort: 9090
+        envFrom:
+        - configMapRef:
+            name: r2devops-jobs
+            optional: false
+        - configMapRef:
+            name: r2devops-envs
+            optional: false
+        volumeMounts:
+        - name: certs
+          mountPath: /usr/local/share/ca-certificates
+      volumes:
+      - name: certs
+        hostPath:
+          path: ./.docker/ca-certificates
+          type: Directory
+status: {}
+---
+# Traefik
+apiVersion: v1
+kind: Pod
+metadata:
+  name: traefik
+  labels:
+    traefik.enable: false
+    traefik.http.routers.traefik.entrypoints: websecure
+    traefik.http.routers.traefik.tls: true
+    traefik.http.routers.traefik.tls.certresolver: le
+    traefik.http.routers.traefik.service: api@internal
+spec:
+  initContainers:
+  - name: wait-for-services
+    image: busybox
+    command:
+    - "/bin/sh"
+    - "-c"
+    args:
+    - "until echo 'Waiting for front...' && nc -vz -w 2 frontend 3000 && echo 'Waiting for jobs...' && nc -vz -w 2 jobs 9090; do echo 'Looping forever...'; sleep 2; done;"
+  containers:
+  - name: traefik
+    image: traefik:2
+    args:
+    - --log.level=DEBUG
+    - --accesslog=true
+    - --entrypoints.web.address=:80
+    - --entrypoints.web.http.redirections.entryPoint.to=websecure
+    - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    - --entrypoints.websecure.address=:443
+    - --providers.docker=true
+    - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+    - --certificatesresolvers.le.acme.email=${CERTIFICATE_EMAIL}
+    - --certificatesresolvers.le.acme.storage=/acme/acme.json
+    - --certificatesresolvers.le.acme.tlschallenge=true
+    ports:
+    - containerPort: 80
+      hostPort: 80
+    - containerPort: 443
+      hostPort: 443
+    volumeMounts:
+    - mountPath: /var/run/docker.sock:z
+      name: docker_sock
+    - mountPath: /acme
+      name: traefik-acme
+  volumes:
+  - name: docker_sock
+    hostPath:
+      path: "/run/user/${uid}/podman/podman.sock"
+      type: File
+  - name: traefik-acme
+    PersistentVolumeClaim:
+      claimName: traefik-acme
+status: {}

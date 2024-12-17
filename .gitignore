@@ -14,3 +14,5 @@ values_mine.yaml
 *.priv
 
 compose.custom.yml
+configmap.yml
+podman.yml

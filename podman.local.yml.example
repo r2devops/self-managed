@@ -1,0 +1,159 @@
+########################################################################
+# R2Devops configuration file                                          #
+# Community support                                                    #
+# Documentation: https://docs.r2devops.io/self-managed/local-podman/   #
+########################################################################
+# Redis
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+  - name: redis
+    image: redis:6
+    command: 
+    - redis-server
+    - --requirepass ${JOBS_REDIS_PASSWORD}
+    ports:
+    - containerPort: 6379
+    envFrom:
+    - configMapRef:
+        name: r2devops-envs
+        optional: false
+status: {}
+---
+# Postgres
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  containers:
+  - name: postgres
+    image: postgres:13
+    ports:
+    - containerPort: 5432
+    env:
+    - name: POSTGRES_USER
+      value: "${JOBS_DB_USER}"
+    - name: POSTGRES_PASSWORD
+      value: "${JOBS_DB_PASSWORD}"
+    - name: POSTGRES_DB
+      value: "${JOBS_DB_NAME}"
+    volumeMounts:
+    - name: postgres-data
+      mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: postgres-data
+    PersistentVolumeClaim:
+      claimName: postgres-data
+status: {}
+---
+# R2DevOps Front
+apiVersion: v1
+kind: Pod
+metadata:
+  name: r2devops-front
+spec:
+  containers:
+  - name: frontend
+    image: docker.io/r2devopsio/frontend:${FRONTEND_IMAGE_TAG}
+    ports:
+    - containerPort: 3000
+      hostPort: 3000
+    volumeMounts:
+    - name: front-config
+      mountPath: /app/.next/server/app/config.body
+    - name: certs
+      mountPath: /usr/local/share/ca-certificates
+  volumes:
+  - name: front-config
+    hostPath:
+      path: ./.docker/r2devops/config.json
+  - name: certs
+    hostPath:
+      path: ./.docker/ca-certificates
+      type: Directory
+status: {}
+---
+# R2DevOps Job
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jobs
+spec:
+  initContainers:
+  - name: wait-for-services
+    image: busybox
+    command:
+    - "/bin/sh"
+    - "-c"
+    args:
+    - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
+  containers:
+  - name: jobs
+    image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+    command: ["/bin/sh", "-c", "sleep 10 && ./app"]
+    ports:
+    - containerPort: 3000
+      hostPort: 3001
+    envFrom:
+    - configMapRef:
+        name: r2devops-jobs
+        optional: false
+    - configMapRef:
+        name: r2devops-envs
+        optional: false
+    volumeMounts:
+    - name: certs
+      mountPath: /usr/local/share/ca-certificates
+  volumes:
+  - name: certs
+    hostPath:
+      path: ./.docker/ca-certificates
+      type: Directory
+status: {}
+---
+# R2DevOps workers
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: r2devops-workers-deployment
+spec:
+  selector:
+    matchLabels:
+      app: r2devops-workers
+  template:
+    metadata:
+      name: r2devops-workers
+    spec:
+      replicas: 5
+      initContainers:
+      - name: wait-for-services
+        image: busybox
+        command:
+        - "/bin/sh"
+        - "-c"
+        args:
+        - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
+      containers:
+      - name: workers
+        image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+        command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+        envFrom:
+        - configMapRef:
+            name: r2devops-jobs
+            optional: false
+        - configMapRef:
+            name: r2devops-envs
+            optional: false
+        volumeMounts:
+        - name: certs
+          mountPath: /usr/local/share/ca-certificates
+      volumes:
+      - name: certs
+        hostPath:
+          path: ./.docker/ca-certificates
+          type: Directory
+status: {}
