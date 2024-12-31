@@ -12,7 +12,7 @@ spec:
   containers:
   - name: redis
     image: redis:6
-    command: 
+    command:
     - redis-server
     - --requirepass ${JOBS_REDIS_PASSWORD}
     ports:
@@ -196,7 +196,7 @@ spec:
     - "until echo 'Waiting for front...' && nc -vz -w 2 frontend 3000 && echo 'Waiting for jobs...' && nc -vz -w 2 jobs 9090; do echo 'Looping forever...'; sleep 2; done;"
   containers:
   - name: traefik
-    image: traefik:2
+    image: traefik:3
     args:
     - --log.level=DEBUG
     - --accesslog=true
