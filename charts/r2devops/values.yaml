@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: docker.io/r2devopsio/frontend
-  tag: v2.3.12
+  tag: v2.3.13
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/"
