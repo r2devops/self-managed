@@ -2,8 +2,8 @@ apiVersion: v2
 name: r2devops
 description: Helm chart for R2Devops
 type: application
-version: "2.7.2"
-appVersion: "2.7.2"
+version: "2.7.3"
+appVersion: "2.7.3"
 dependencies:
   # ref. https://github.com/minio/minio/tree/master/helm/minio
   - name: minio
