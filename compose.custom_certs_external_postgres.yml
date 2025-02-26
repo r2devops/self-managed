@@ -83,7 +83,7 @@ services:
   #####################
 
   redis:
-    image: redis:6
+    image: redis:6.2.17
     restart: unless-stopped
     env_file:
       - .env
@@ -96,7 +96,7 @@ services:
       - intranet
 
   postgres:
-    image: postgres:13
+    image: postgres:13.20
     restart: unless-stopped
     environment:
       - POSTGRES_USER=$JOBS_DB_USER
@@ -134,7 +134,7 @@ services:
   #################
 
   traefik:
-    image: traefik:3
+    image: traefik:3.3.4
     restart: unless-stopped
     depends_on:
       - frontend
