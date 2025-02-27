@@ -174,9 +174,14 @@ spec:
           {{- end }}
 
       volumes:
-      - name: ca-certificates
-        configMap:
-          name: {{ $.Values.customCertificateAuthority.configMapName }}
+        - name: ca-certificates
+          {{- if $.Values.customCertificateAuthority.existingSecret }}
+          secret:
+            secretName: {{ $.Values.customCertificateAuthority.existingSecret }}
+          {{- else }}
+          configMap:
+            name: {{ $.Values.customCertificateAuthority.configMapName }}
+          {{- end }}
       {{- if eq .type "frontend" }}
       - name: config-volume
         configMap:
