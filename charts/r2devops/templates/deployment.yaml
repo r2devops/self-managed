@@ -89,16 +89,6 @@ spec:
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: JOBS_CORS_ORIGIN
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
-            - name: S3_HOST
-              value: {{ default (printf "%s-%s" $.Release.Name "minio:9000") $.Values.minio.custom.host | quote }}
-            - name: S3_REGION
-              value: "{{ $.Values.minio.custom.region }}"
-            - name: S3_BUCKET
-              value: "{{ $.Values.minio.custom.bucketName }}"
-            - name: S3_DISABLE_SSL
-              value: "{{ $.Values.minio.custom.disableSSL }}"
-            - name: S3_FORCE_PATH_STYLE
-              value: "{{ $.Values.minio.custom.forcePathStyle }}"
             - name: JOBS_REDIS_HOST
               value: "{{ default (printf "%s-%s" $.Release.Name "redis-master") $.Values.redis.custom.host }}"
             - name: JOBS_REDIS_PORT
@@ -121,24 +111,6 @@ spec:
                 secretKeyRef:
                   name: "{{ $.Values.postgresql.global.postgresql.auth.existingSecret }}"
                   key: "{{ $.Values.postgresql.global.postgresql.auth.secretKeys.adminPasswordKey }}"
-            {{- end }}
-
-            {{- if empty (default "" $.Values.minio.auth.existingSecret) }}
-            - name: S3_ACCESS_KEY
-              value: "{{ $.Values.minio.auth.rootUser }}"
-            - name: S3_SECRET_KEY
-              value: "{{ $.Values.minio.auth.rootPassword }}"
-            {{- else }}
-            - name: S3_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $.Values.minio.auth.existingSecret }}"
-                  key: "root-user"
-            - name: S3_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ $.Values.minio.auth.existingSecret }}"
-                  key: "root-password"
             {{- end }}
 
             {{- if empty (default "" $.Values.redis.auth.existingSecret) }}
@@ -182,11 +154,11 @@ spec:
           configMap:
             name: {{ $.Values.customCertificateAuthority.configMapName }}
           {{- end }}
-      {{- if eq .type "frontend" }}
-      - name: config-volume
-        configMap:
-          name: {{ .name }}
-      {{- end }}
+        {{- if eq .type "frontend" }}
+        - name: config-volume
+          configMap:
+            name: {{ .name }}
+        {{- end }}
 
 {{- end }}
 {{ end }}

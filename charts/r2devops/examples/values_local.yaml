@@ -13,12 +13,6 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 
-minio:
-  dependency:
-    enabled: true
-  auth:
-    rootPassword: MINIO_PASSWORD
-
 postgresql:
   dependency:
     enabled: true
