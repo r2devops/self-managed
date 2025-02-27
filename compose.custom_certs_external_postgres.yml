@@ -148,6 +148,4 @@ networks:
   intranet:
 
 volumes:
-  minio-data:
-  minio-data_config:
   postgres-data:
