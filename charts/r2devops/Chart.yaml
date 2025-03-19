@@ -4,17 +4,17 @@ description: Helm chart for R2Devops
 type: application
 version: "2.10.5"
 appVersion: "2.10.5"
-dependencies:
-  # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis
-  - name: redis
-    version: 16.13.2  # appVersion: 6.2.7
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.dependency.enabled
-  # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql
-  - name: postgresql
-    version: 11.9.13  # appVersion: 14.5.0
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.dependency.enabled
+# dependencies:
+#   # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis
+#   - name: redis
+#     version: 16.13.2  # appVersion: 6.2.7
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: redis.dependency.enabled
+#   # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql
+#   - name: postgresql
+#     version: 11.9.13  # appVersion: 14.5.0
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: postgresql.dependency.enabled
 maintainers:
   - name: devpro
     email: bertrand@devpro.fr
