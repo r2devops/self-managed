@@ -5,11 +5,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .name }}
-  {{- with $.Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- range $key, $val := $.Values.ingress.annotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+    {{- range $key, $val := $.Values.additionalAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  labels:
+    {{- range $key, $val := $.Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  name: {{ .name }}
 spec:
   {{- if $.Values.ingress.className }}
   ingressClassName: {{ $.Values.ingress.className }}

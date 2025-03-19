@@ -2,9 +2,16 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  annotations:
+    {{- range $key, $val := .Values.additionalAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   labels:
     app: {{ .Values.front.name }}
     app.kubernetes.io/name: {{ .Values.front.name }}
+    {{- range $key, $val := .Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   name: {{ .Values.front.name }}
 data:
   config.body: |
@@ -22,9 +29,16 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  annotations:
+    {{- range $key, $val := .Values.additionalAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  labels:
+    {{- range $key, $val := .Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   name: {{ .Values.customCertificateAuthority.configMapName }}
 data:
   {{- range .Values.customCertificateAuthority.certificates }}
   {{ .name }}: {{ .value | quote }}
   {{- end }}
-

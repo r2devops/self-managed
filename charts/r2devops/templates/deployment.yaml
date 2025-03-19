@@ -5,10 +5,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .name }}
+  annotations:
+    {{- range $key, $val := $.Values.additionalAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   labels:
     app: {{ .name }}
     app.kubernetes.io/name: {{ .name }}
+    {{- range $key, $val := $.Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  name: {{ .name }}
 spec:
   replicas: {{ .replicaCount }}
   selector:
@@ -20,6 +27,9 @@ spec:
       labels:
         app: {{ .name }}
         app.kubernetes.io/name: {{ .name }}
+        {{- range $key, $val := $.Values.additionalLabels }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
     spec:
       containers:
         - name: {{ .name }}

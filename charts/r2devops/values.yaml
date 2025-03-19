@@ -1,3 +1,9 @@
+# -- Additional annotations applied to all resources.
+additionalAnnotations: {}
+
+# -- Additional labels applied to all resources.
+additionalLabels: {}
+
 front:
   enabled: true
   type: frontend

@@ -5,9 +5,16 @@
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    {{- range $key, $val := $.Values.additionalAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   labels:
     app: {{ .name }}
     app.kubernetes.io/name: {{ .name }}
+    {{- range $key, $val := $.Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
   name: {{ .name }}
 spec:
   type: ClusterIP
