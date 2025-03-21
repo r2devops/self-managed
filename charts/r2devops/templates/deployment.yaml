@@ -154,6 +154,13 @@ spec:
               mountPath: /app/.next/server/app/config.body
               subPath: config.body
           {{- end }}
+          {{- if eq .type "backend" }}
+            {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
+            - mountPath: /mnt/{{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+              name: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+              readOnly: true
+            {{- end }}
+          {{- end }}
 
       volumes:
         - name: ca-certificates
@@ -168,6 +175,16 @@ spec:
         - name: config-volume
           configMap:
             name: {{ .name }}
+        {{- end }}
+        {{- if eq .type "backend" }}
+          {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
+        - csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+          name: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+          {{- end }}
         {{- end }}
       {{- with .serviceAccountName }}
       serviceAccountName: {{ . | quote }}

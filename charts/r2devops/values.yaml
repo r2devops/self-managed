@@ -150,6 +150,7 @@ postgresql:
       # auth:
       #   username: r2devops
       #   existingSecret: "postgresql-secret"
+      #   existingSecretType: "csi" # Remove or leave empty if secret is not managed by CSI Driver
       #   secretKeys:
       #     adminPasswordKey: "password"
       #     userPasswordKey: "password"
