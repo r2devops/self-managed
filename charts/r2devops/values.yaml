@@ -44,6 +44,8 @@ jobs:
   # Duration of users' session
   sessionTTL: "168h"
   resources: {}
+  # -- Optional existing service account name to use.
+  serviceAccountName: ""
 
   # Not using secret for R2devops secrets (comment if you use secret)
   extraEnv:
@@ -100,6 +102,8 @@ worker:
   host: ""
   tls: {}
   resources: {}
+  # -- Optional existing service account name to use.
+  serviceAccountName: ""
 
 ingress:
   enabled: false

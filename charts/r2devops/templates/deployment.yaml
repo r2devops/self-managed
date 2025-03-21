@@ -169,6 +169,8 @@ spec:
           configMap:
             name: {{ .name }}
         {{- end }}
-
+      {{- with .serviceAccountName }}
+      serviceAccountName: {{ . | quote }}
+      {{- end }}
 {{- end }}
 {{ end }}
