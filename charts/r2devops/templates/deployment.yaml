@@ -104,7 +104,7 @@ spec:
             - name: JOBS_REDIS_PORT
               value: "{{ $.Values.redis.custom.port }}"
             - name: JOBS_REDIS_DB
-              value: "0"
+              value: "{{ $.Values.redis.custom.databaseIndex }}"
             - name: JOBS_REDIS_USER
               value: "{{ $.Values.redis.custom.user }}"
             - name: JOBS_REDIS_SET_NAMESPACES_TTL

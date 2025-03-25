@@ -164,6 +164,7 @@ redis:
     user: "default"
     port: 6379
     cert: ""
+    databaseIndex: 0
   replica:
     replicaCount: 0
 
