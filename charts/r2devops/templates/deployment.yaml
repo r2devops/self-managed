@@ -31,6 +31,8 @@ spec:
         {{ $key }}: {{ $val | quote }}
         {{- end }}
     spec:
+      automountServiceAccountToken: {{ .automountServiceAccountToken }}
+
       containers:
         - name: {{ .name }}
           image: {{ .image }}:{{ .tag }}
@@ -167,6 +169,10 @@ spec:
             {{- end }}
           {{- end }}
 
+      {{- with .serviceAccountName }}
+      serviceAccountName: {{ . | quote }}
+      {{- end }}
+
       {{- with .podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -196,8 +202,6 @@ spec:
           name: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
           {{- end }}
         {{- end }}
-      {{- with .serviceAccountName }}
-      serviceAccountName: {{ . | quote }}
-      {{- end }}
+
 {{- end }}
 {{ end }}

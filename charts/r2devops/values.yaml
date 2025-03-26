@@ -32,6 +32,7 @@ front:
   securityContext: {}
   # -- Optional security context for pods.
   podSecurityContext: {}
+  automountServiceAccountToken: true
 
 jobs:
   enabled: true
@@ -56,6 +57,7 @@ jobs:
   securityContext: {}
   # -- Optional security context for pods.
   podSecurityContext: {}
+  automountServiceAccountToken: true
 
   # Not using secret for R2devops secrets (comment if you use secret)
   extraEnv:
@@ -118,6 +120,7 @@ worker:
   securityContext: {}
   # -- Optional security context for pods.
   podSecurityContext: {}
+  automountServiceAccountToken: true
 
 ingress:
   enabled: false
