@@ -169,12 +169,22 @@ spec:
             {{- end }}
           {{- end }}
 
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
       {{- with .serviceAccountName }}
       serviceAccountName: {{ . | quote }}
       {{- end }}
 
       {{- with .podSecurityContext }}
       securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .tolerations }}
+      tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 
