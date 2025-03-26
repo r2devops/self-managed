@@ -12,6 +12,11 @@ metadata:
     {{- range $key, $val := $.Values.additionalAnnotations }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+    {{- if .extraIngressAnnotations }}
+    {{- range $key, $val := .extraIngressAnnotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     {{- range $key, $val := $.Values.additionalLabels }}
     {{ $key }}: {{ $val | quote }}

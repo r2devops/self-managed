@@ -27,6 +27,7 @@ front:
     # requests:
     #   cpu: 100m
     #   memory: 64Mi
+  extraIngressAnnotations: {}
 
 jobs:
   enabled: true
@@ -46,6 +47,7 @@ jobs:
   resources: {}
   # -- Optional existing service account name to use.
   serviceAccountName: ""
+  extraIngressAnnotations: {}
 
   # Not using secret for R2devops secrets (comment if you use secret)
   extraEnv:
