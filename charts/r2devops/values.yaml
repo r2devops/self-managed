@@ -11,6 +11,7 @@ front:
   image: docker.io/r2devopsio/frontend
   tag: v2.12.9
   replicaCount: 1
+  revisionHistoryLimit: 5
   port: 3000
   livenessEndpoint: "/"
   readinesspoint: "/"
@@ -50,6 +51,7 @@ jobs:
   image: docker.io/r2devopsio/jobs
   tag: v2.13.2
   replicaCount: 1
+  revisionHistoryLimit: 5
   port: 3000
   livenessEndpoint: "/api/health/alive"
   readinesspoint: "/api/health/ready"
@@ -122,6 +124,7 @@ worker:
   image: docker.io/r2devopsio/jobs
   tag: v2.13.2
   replicaCount: 20
+  revisionHistoryLimit: 5
   args:
     - "./app"
     - "--worker"

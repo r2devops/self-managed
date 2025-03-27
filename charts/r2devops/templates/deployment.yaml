@@ -18,6 +18,7 @@ metadata:
   name: {{ .name }}
 spec:
   replicas: {{ .replicaCount }}
+  revisionHistoryLimit: {{ .revisionHistoryLimit }}
   selector:
     matchLabels:
       app: {{ .name }}
