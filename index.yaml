@@ -2,6 +2,35 @@ apiVersion: v1
 entries:
   r2devops:
   - apiVersion: v2
+    appVersion: 2.11.2
+    created: "2025-05-19T15:31:09.91739743Z"
+    dependencies:
+    - condition: redis.dependency.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.13.2
+    - condition: postgresql.dependency.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.9.13
+    description: Helm chart for R2Devops
+    digest: f8e4dcad9c16c43dce8c9661fdadd0877400546109937a1f880bfe952aa6fe7b
+    home: https://gitlab.com/r2devops/self-managed/charts/r2devops
+    maintainers:
+    - email: bertrand@devpro.fr
+      name: devpro
+    - email: slongo@klanik.com
+      name: gemini-jtff
+    - email: thomas@r2devops.io
+      name: thomasboni
+    - email: thibaud@r2devops.io
+      name: Totara-thib
+    name: r2devops
+    type: application
+    urls:
+    - https://github.com/r2devops/self-managed/releases/download/r2devops-2.11.2/r2devops-2.11.2.tgz
+    version: 2.11.2
+  - apiVersion: v2
     appVersion: 2.11.1
     created: "2025-05-11T09:52:47.463538059Z"
     dependencies:
@@ -4934,4 +4963,4 @@ entries:
     urls:
     - https://github.com/r2devops/self-managed/releases/download/r2devops-0.1.0/r2devops-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-11T09:52:47.46391325Z"
+generated: "2025-05-19T15:31:09.91800912Z"
