@@ -41,8 +41,6 @@ jobs:
 
   # Not using secret for R2devops secrets (comment if you use secret)
   extraEnv:
-    - name: LICENSE
-      value: "<license-key>"
     - name: SECRET_KEY
       value: "<secret-key>"
     - name: GITLAB_OAUTH2_CLIENT_ID
@@ -52,11 +50,6 @@ jobs:
 
   # Using existing secret for R2Devops secrets (uncomment if you use secret)
   # extraEnv:
-  #   - name: LICENSE
-  #     valueFrom:
-  #       secretKeyRef:
-  #         name: "r2devops-secret"
-  #         key: "license-key"
   #   - name: SECRET_KEY
   #     valueFrom:
   #       secretKeyRef:
