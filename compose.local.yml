@@ -69,7 +69,7 @@ services:
   #####################
 
   redis:
-    image: redis:6.2.18
+    image: redis:$REDIS_IMAGE_TAG
     restart: unless-stopped
     env_file:
       - .env
@@ -82,7 +82,7 @@ services:
       - intranet
 
   postgres:
-    image: postgres:13.21
+    image: postgres:$POSTGRES_IMAGE_TAG
     restart: unless-stopped
     environment:
       - POSTGRES_USER=$JOBS_DB_USER
