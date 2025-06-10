@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
   - name: redis
-    image: redis:6
+    image: redis:${REDIS_IMAGE_TAG}
     command:
     - redis-server
     - --requirepass ${JOBS_REDIS_PASSWORD}
@@ -31,7 +31,7 @@ metadata:
 spec:
   containers:
   - name: postgres
-    image: postgres:13
+    image: postgres:${POSTGRES_IMAGE_TAG}
     ports:
     - containerPort: 5432
       hostPort: 5432
@@ -196,7 +196,7 @@ spec:
     - "until echo 'Waiting for front...' && nc -vz -w 2 frontend 3000 && echo 'Waiting for jobs...' && nc -vz -w 2 jobs 9090; do echo 'Looping forever...'; sleep 2; done;"
   containers:
   - name: traefik
-    image: traefik:3
+    image: traefik:${TRAEFIK_IMAGE_TAG}
     args:
     - --log.level=DEBUG
     - --accesslog=true
