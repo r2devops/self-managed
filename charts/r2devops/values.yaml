@@ -3,7 +3,7 @@ front:
   type: frontend
   name: r2devops-front
   image: docker.io/r2devopsio/frontend
-  tag: v2.19.0
+  tag: v2.19.4
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/"
@@ -27,7 +27,7 @@ jobs:
   type: backend
   name: r2devops-jobs
   image: docker.io/r2devopsio/jobs
-  tag: v2.19.2
+  tag: v2.20.0
   replicaCount: 1
   port: 3000
   livenessEndpoint: "/api/health/alive"
@@ -75,7 +75,7 @@ worker:
   type: backend
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
-  tag: v2.19.2
+  tag: v2.20.0
   replicaCount: 20
   args:
     - "./app"
