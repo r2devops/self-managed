@@ -39,11 +39,9 @@ services:
 
   frontend:
     image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
+    env_file: .env
     restart: unless-stopped
     volumes:
-      - type: bind
-        source: ./.docker/r2devops/config.json
-        target: /app/.next/server/app/config.body
       - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     ports:
       - "3000:3000"
