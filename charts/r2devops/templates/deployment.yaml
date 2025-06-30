@@ -150,6 +150,17 @@ spec:
 
             {{- end }}
 
+            {{- if eq .type "frontend" }}
+            - name: DEBUG
+              value: "{{ .debug }}"
+            - name: ALLOW_EXTERNAL_QUERIES
+              value: "{{ .allowExternalQueries }}"
+            - name: API_URL
+              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/api"
+            - name: JOBS_GITLAB_URL
+              value: "{{ $.Values.gitlab.domain }}"
+            {{- end }}
+
           {{- with .securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -159,11 +170,7 @@ spec:
             - name: ca-certificates
               mountPath: /usr/local/share/ca-certificates/
               readOnly: true
-          {{- if eq .type "frontend" }}
-            - name: config-volume
-              mountPath: /app/.next/server/app/config.body
-              subPath: config.body
-          {{- end }}
+
           {{- if eq .type "backend" }}
             {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
             - mountPath: /mnt/{{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
@@ -200,11 +207,7 @@ spec:
           configMap:
             name: {{ $.Values.customCertificateAuthority.configMapName }}
           {{- end }}
-        {{- if eq .type "frontend" }}
-        - name: config-volume
-          configMap:
-            name: {{ .name }}
-        {{- end }}
+
         {{- if eq .type "backend" }}
           {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
         - csi:
