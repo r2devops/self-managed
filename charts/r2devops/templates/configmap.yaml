@@ -21,7 +21,7 @@ data:
       "gitLabApiUrl": "{{ .Values.gitlab.domain }}",
       "selfHosted": true,
       "docUrl": "https://docs.r2devops.io",
-      "debug": true,
+      "debug": false,
       "allowExternalQueries": true
     }
 
