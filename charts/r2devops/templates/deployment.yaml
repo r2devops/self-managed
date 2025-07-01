@@ -5,12 +5,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .name }}
+  {{- with $.Values.additionalAnnotations }}
+  annotations:
+    {{- range $key, $val := . }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  {{- end }}
   labels:
     app: {{ .name }}
     app.kubernetes.io/name: {{ .name }}
+    {{- range $key, $val := $.Values.additionalLabels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  name: {{ .name }}
 spec:
   replicas: {{ .replicaCount }}
+  revisionHistoryLimit: {{ .revisionHistoryLimit }}
   selector:
     matchLabels:
       app: {{ .name }}
@@ -20,7 +30,12 @@ spec:
       labels:
         app: {{ .name }}
         app.kubernetes.io/name: {{ .name }}
+        {{- range $key, $val := $.Values.additionalLabels }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
     spec:
+      automountServiceAccountToken: {{ .automountServiceAccountToken }}
+
       containers:
         - name: {{ .name }}
           image: {{ .image }}:{{ .tag }}
@@ -94,7 +109,7 @@ spec:
             - name: JOBS_REDIS_PORT
               value: "{{ $.Values.redis.custom.port }}"
             - name: JOBS_REDIS_DB
-              value: "0"
+              value: "{{ $.Values.redis.custom.databaseIndex }}"
             - name: JOBS_REDIS_USER
               value: "{{ $.Values.redis.custom.user }}"
             - name: JOBS_REDIS_SET_NAMESPACES_TTL
@@ -135,6 +150,11 @@ spec:
 
             {{- end }}
 
+          {{- with .securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
           volumeMounts:
             - name: ca-certificates
               mountPath: /usr/local/share/ca-certificates/
@@ -144,6 +164,32 @@ spec:
               mountPath: /app/.next/server/app/config.body
               subPath: config.body
           {{- end }}
+          {{- if eq .type "backend" }}
+            {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
+            - mountPath: /mnt/{{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+              name: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+              readOnly: true
+            {{- end }}
+          {{- end }}
+
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .serviceAccountName }}
+      serviceAccountName: {{ . | quote }}
+      {{- end }}
+
+      {{- with .podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 
       volumes:
         - name: ca-certificates
@@ -158,6 +204,16 @@ spec:
         - name: config-volume
           configMap:
             name: {{ .name }}
+        {{- end }}
+        {{- if eq .type "backend" }}
+          {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
+        - csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+          name: {{ $.Values.postgresql.global.postgresql.auth.existingSecret }}
+          {{- end }}
         {{- end }}
 
 {{- end }}

@@ -1,10 +1,17 @@
+# -- Additional annotations applied to all resources.
+additionalAnnotations: {}
+
+# -- Additional labels applied to all resources.
+additionalLabels: {}
+
 front:
   enabled: true
   type: frontend
   name: r2devops-front
   image: docker.io/r2devopsio/frontend
-  tag: v2.19.4
+  tag: v2.20.0
   replicaCount: 1
+  revisionHistoryLimit: 5
   port: 3000
   livenessEndpoint: "/"
   readinesspoint: "/"
@@ -21,14 +28,30 @@ front:
     # requests:
     #   cpu: 100m
     #   memory: 64Mi
+  extraIngressAnnotations: {}
+  # -- Optional security context for containers.
+  securityContext: {}
+  # -- Optional security context for pods.
+  podSecurityContext: {}
+  automountServiceAccountToken: true
+
+  # NodeSelector is a selector which must be true for the pod to fit on a node.
+  # Selector which must match a node's labels for the pod to be scheduled on that node.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  # Optional pod node tolerations.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
 
 jobs:
   enabled: true
   type: backend
   name: r2devops-jobs
   image: docker.io/r2devopsio/jobs
-  tag: v2.20.0
+  tag: v2.20.4
   replicaCount: 1
+  revisionHistoryLimit: 5
   port: 3000
   livenessEndpoint: "/api/health/alive"
   readinesspoint: "/api/health/ready"
@@ -38,6 +61,23 @@ jobs:
   # Duration of users' session
   sessionTTL: "168h"
   resources: {}
+  # -- Optional existing service account name to use.
+  serviceAccountName: ""
+  extraIngressAnnotations: {}
+  # -- Optional security context for containers.
+  securityContext: {}
+  # -- Optional security context for pods.
+  podSecurityContext: {}
+  automountServiceAccountToken: true
+
+  # NodeSelector is a selector which must be true for the pod to fit on a node.
+  # Selector which must match a node's labels for the pod to be scheduled on that node.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  # Optional pod node tolerations.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
 
   # Not using secret for R2devops secrets (comment if you use secret)
   extraEnv:
@@ -75,8 +115,9 @@ worker:
   type: backend
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
-  tag: v2.20.0
+  tag: v2.20.4
   replicaCount: 20
+  revisionHistoryLimit: 5
   args:
     - "./app"
     - "--worker"
@@ -87,6 +128,22 @@ worker:
   host: ""
   tls: {}
   resources: {}
+  # -- Optional existing service account name to use.
+  serviceAccountName: ""
+  automountServiceAccountToken: true
+  # -- Optional security context for containers.
+  securityContext: {}
+  # -- Optional security context for pods.
+  podSecurityContext: {}
+
+  # NodeSelector is a selector which must be true for the pod to fit on a node.
+  # Selector which must match a node's labels for the pod to be scheduled on that node.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  nodeSelector: {}
+
+  # Optional pod node tolerations.
+  # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
 
 ingress:
   enabled: false
@@ -133,6 +190,7 @@ postgresql:
       # auth:
       #   username: r2devops
       #   existingSecret: "postgresql-secret"
+      #   existingSecretType: "csi" # Remove or leave empty if secret is not managed by CSI Driver
       #   secretKeys:
       #     adminPasswordKey: "password"
       #     userPasswordKey: "password"
@@ -146,6 +204,7 @@ redis:
     user: "default"
     port: 6379
     cert: ""
+    databaseIndex: 0
   replica:
     replicaCount: 0
 
