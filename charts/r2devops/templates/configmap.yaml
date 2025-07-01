@@ -2,10 +2,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- with .Values.additionalAnnotations }}
   annotations:
-    {{- range $key, $val := .Values.additionalAnnotations }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+  {{- end }}
   labels:
     app: {{ .Values.front.name }}
     app.kubernetes.io/name: {{ .Values.front.name }}
