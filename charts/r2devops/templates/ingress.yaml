@@ -17,10 +17,12 @@ metadata:
     {{ $key }}: {{ $val | quote }}
     {{- end }}
     {{- end }}
+  {{- with $.Values.additionalLabels }}
   labels:
-    {{- range $key, $val := $.Values.additionalLabels }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+  {{- end }}
   name: {{ .name }}
 spec:
   {{- if $.Values.ingress.className }}
