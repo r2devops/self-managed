@@ -31,14 +31,18 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- with .Values.additionalAnnotations }}
   annotations:
-    {{- range $key, $val := .Values.additionalAnnotations }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+  {{- end }}
+  {{- with .Values.additionalLabels }}
   labels:
-    {{- range $key, $val := .Values.additionalLabels }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+  {{- end }}
   name: {{ .Values.customCertificateAuthority.configMapName }}
 data:
   {{- range .Values.customCertificateAuthority.certificates }}
