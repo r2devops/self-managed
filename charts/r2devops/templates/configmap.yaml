@@ -16,7 +16,7 @@ metadata:
 data:
   config.body: |
     {
-      "appTitle": "R2Devops BAS",
+      "appTitle": "R2Devops",
       "apiUrl": "https://{{ .Values.jobs.host }}/api",
       "gitLabApiUrl": "{{ .Values.gitlab.domain }}",
       "selfHosted": true,
