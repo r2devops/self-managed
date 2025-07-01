@@ -5,10 +5,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  {{- with $.Values.additionalAnnotations }}
   annotations:
-    {{- range $key, $val := $.Values.additionalAnnotations }}
+    {{- range $key, $val := . }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
+  {{- end }}
   labels:
     app: {{ .name }}
     app.kubernetes.io/name: {{ .name }}
