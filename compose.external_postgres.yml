@@ -35,11 +35,9 @@ services:
 
   frontend:
     image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
+    env_file: .env
     restart: unless-stopped
     volumes:
-      - type: bind
-        source: ./.docker/r2devops/config.json
-        target: /app/.next/server/app/config.body
       - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     expose:
       - "3000"
@@ -129,7 +127,6 @@ services:
       - --entrypoints.websecure.address=:443
       - --providers.docker=true
       - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
-      - --certificatesresolvers.le.acme.email=$CERTIFICATE_EMAIL
       - --certificatesresolvers.le.acme.storage=/acme/acme.json
       - --certificatesresolvers.le.acme.tlschallenge=true
     labels:

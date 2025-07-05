@@ -15,9 +15,12 @@ front:
   port: 3000
   livenessEndpoint: "/"
   readinesspoint: "/"
+  debug: false
+  allowExternalQueries: true
   extraEnv: []
-    # - name: xxx
-    #   value: "yyyy"
+    # Additional frontend environment variables can be added here:
+    # - name: CUSTOM_VAR
+    #   value: "custom-value"
   host: ""
   tls:
     secretName: ""

@@ -68,15 +68,14 @@ spec:
     ports:
     - containerPort: 3000
       hostPort: 3000
+    envFrom:
+    - configMapRef:
+        name: r2devops-envs
+        optional: false
     volumeMounts:
-    - name: front-config
-      mountPath: /app/.next/server/app/config.body
     - name: certs
       mountPath: /usr/local/share/ca-certificates
   volumes:
-  - name: front-config
-    hostPath:
-      path: ./.docker/r2devops/config.json
   - name: certs
     hostPath:
       path: ./.docker/ca-certificates
@@ -207,7 +206,6 @@ spec:
     - --entrypoints.websecure.address=:443
     - --providers.docker=true
     - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
-    - --certificatesresolvers.le.acme.email=${CERTIFICATE_EMAIL}
     - --certificatesresolvers.le.acme.storage=/acme/acme.json
     - --certificatesresolvers.le.acme.tlschallenge=true
     ports:
