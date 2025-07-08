@@ -2,8 +2,8 @@ apiVersion: v2
 name: r2devops
 description: Helm chart for R2Devops
 type: application
-version: "2.13.1"
-appVersion: "2.13.1"
+version: "2.13.2"
+appVersion: "2.13.2"
 
 # If you don't want to use Redis and PostgreSQL from the chart, and you also
 # want to prevent Helm from making any HTTP requests to fetch dependencies,
