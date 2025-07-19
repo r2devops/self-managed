@@ -13,7 +13,7 @@ x-jobs-common: &jobs-common
       - JOBS_DB_PORT=5432
       - JOBS_DB_SSLMODE=disable
       - JOBS_DB_TIMEZONE=Europe/Paris
-      - JOBS_API_DOMAIN=http://$API_URL
+      - JOBS_API_DOMAIN=$API_DOMAIN$API_PATH
       - LOG_LEVEL=info
       - LOG_FORMATTER=text
       - JOBS_REDIS_HOST=redis
@@ -69,8 +69,7 @@ services:
   redis:
     image: redis:6.2.18
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     command:
       - redis-server
       - --requirepass $JOBS_REDIS_PASSWORD
@@ -82,6 +81,7 @@ services:
   postgres:
     image: postgres:13.21
     restart: unless-stopped
+    env_file: .env
     environment:
       - POSTGRES_USER=$JOBS_DB_USER
       - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
