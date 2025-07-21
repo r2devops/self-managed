@@ -78,7 +78,7 @@ services:
   #####################
 
   redis:
-    image: redis:6.2.18
+    image: redis:7.4.5
     restart: unless-stopped
     env_file:
       - .env
