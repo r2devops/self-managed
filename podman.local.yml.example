@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
   - name: redis
-    image: redis:6.2.18
+    image: redis:7.4.5
     command:
     - redis-server
     - --requirepass ${JOBS_REDIS_PASSWORD}
