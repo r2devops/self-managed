@@ -1,0 +1,25 @@
+{{- if .Values.ingress.enabled }}
+====================================================================================================
+🚀 R2Devops has been successfully deployed!
+====================================================================================================
+
+{{- if .Values.front.enabled }}
+
+📌 Access your R2Devops instance:
+
+   👉 {{ if .Values.front.tls }}https{{ else }}http{{ end }}://{{ .Values.front.host }}
+
+{{- end }}
+
+{{- if .Values.jobs.enabled }}
+✅ API: Running
+{{- end }}
+{{- if .Values.worker.enabled }}
+✅ Workers: {{ .Values.worker.replicaCount }} worker(s) running
+{{- end }}
+
+📚 Documentation: https://docs.r2devops.io
+🐛 Issues: https://github.com/r2devops/r2devops/issues
+
+====================================================================================================
+{{- end }}
