@@ -165,21 +165,13 @@ customCertificateAuthority:
   #     (SNIPPED FOR BREVITY)
   #     -----END CERTIFICATE-----
 
-# ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+# External PostgreSQL
 postgresql:
-  dependency:
-    enabled: false
   custom:
     host: ""
     dbName: "r2devops"
     sslmode: "disable"
     port: 5432
-  primary:
-    initdb:
-      scripts:
-        # creates the database (ref. https://artifacthub.io/packages/helm/bitnami/postgresql#initialize-a-fresh-instance)
-        init.sql: |
-          CREATE DATABASE r2devops;
   global:
     postgresql:
 
@@ -198,18 +190,14 @@ postgresql:
       #     adminPasswordKey: "password"
       #     userPasswordKey: "password"
 
-# ref. https://github.com/bitnami/charts/blob/main/bitnami/redis/values.yaml
+# External Redis
 redis:
-  dependency:
-    enabled: false
   custom:
     host: ""
     user: "default"
     port: 6379
     cert: ""
     databaseIndex: 0
-  replica:
-    replicaCount: 0
 
   # Not using secret for auth (comment if you use secret)
   auth:
