@@ -4,22 +4,7 @@ description: Helm chart for R2Devops
 type: application
 version: "2.13.5"
 appVersion: "2.13.5"
-
-# If you don't want to use Redis and PostgreSQL from the chart, and you also
-# want to prevent Helm from making any HTTP requests to fetch dependencies,
-# comment out the entire `dependencies` section below.
-
-dependencies:
-  # ref. https://github.com/bitnami/charts/blob/main/bitnami/redis
-  - name: redis
-    version: 20.13.4  # appVersion: 7.4.3
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.dependency.enabled
-  # ref. https://github.com/bitnami/charts/blob/main/bitnami/postgresql
-  - name: postgresql
-    version: 11.9.13  # appVersion: 14.5.0
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.dependency.enabled
+home: https://github.com/r2devops/self-managed/
 maintainers:
   - name: devpro
     email: bertrand@devpro.fr
@@ -29,4 +14,3 @@ maintainers:
     email: thomas@r2devops.io
   - name: Totara-thib
     email: thibaud@r2devops.io
-home: https://gitlab.com/r2devops/self-managed/charts/r2devops
