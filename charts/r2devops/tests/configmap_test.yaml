@@ -1,0 +1,58 @@
+---
+suite: Test custom CA certificates configmap
+templates:
+  - configmap.yaml
+release:
+  name: r2devops
+tests:
+  - it: ConfigMap should be absent if certificates is empty
+    set:
+      customCertificateAuthority:
+        configMapName: dummy-value
+        certificates:
+          - name: file
+            value: |
+              MY SUPER CERTIFICATE
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.file
+          value: |
+            MY SUPER CERTIFICATE
+
+  - it: ConfigMap name should be r2devops-ca-certificates if not provided
+    set:
+      customCertificateAuthority:
+        configMapName: ""
+        certificates:
+          - name: file
+            value: |
+              MY SUPER CERTIFICATE
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: r2devops-ca-certificates
+
+  - it: ConfigMap name should be customizable
+    set:
+      customCertificateAuthority:
+        configMapName: custom-configmap-name
+        certificates:
+          - name: file
+            value: |
+              MY SUPER CERTIFICATE
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: custom-configmap-name

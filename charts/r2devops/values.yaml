@@ -157,7 +157,7 @@ ingress:
 # Custom certificates
 customCertificateAuthority:
   existingSecret: ""
-  configMapName: "r2devops-ca-certificates"
+  configMapName: ""
   certificates: []
   # - name: rootCA.crt # Must have the .crt extension
   #   value: |
