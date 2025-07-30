@@ -1,0 +1,95 @@
+---
+suite: Test custom CA certificates configmap
+templates:
+  - deployment.yaml
+release:
+  name: r2devops
+tests:
+  - it: Deployments should have an empty ca-certificates volume if not configured
+    set:
+      customCertificateAuthority:
+        configMapName: ""
+        certificates: []
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca-certificates
+            emptyDir:
+              sizeLimit: 1Ki
+
+  - it: Deployments should bind to an external secret if .existingSecret is set
+    set:
+      customCertificateAuthority:
+        existingSecret: my-custom-secret
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca-certificates
+            secret:
+              secretName: my-custom-secret
+
+  - it: Deployments should bind to a ConfigMap if .configMapName is set
+    set:
+      customCertificateAuthority:
+        configMapName: my-custom-configmap
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca-certificates
+            configMap:
+              name: my-custom-configmap
+
+  - it: Deployments should bind to a ConfigMap if .configMapName and .certificates are set
+    set:
+      customCertificateAuthority:
+        configMapName: my-custom-configmap
+        certificates:
+          - name: file
+            value: |
+              MY SUPER CERTIFICATE
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca-certificates
+            configMap:
+              name: my-custom-configmap
+
+  - it: Deployments should bind to a default ConfigMap name if .certificates is set but not .configMapName
+    set:
+      customCertificateAuthority:
+        configMapName: ""
+        certificates:
+          - name: file
+            value: |
+              MY SUPER CERTIFICATE
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Deployment
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca-certificates
+            configMap:
+              name: r2devops-ca-certificates

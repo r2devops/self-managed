@@ -199,14 +199,19 @@ spec:
       {{- end }}
 
       volumes:
+        {{- with $.Values.customCertificateAuthority }}
         - name: ca-certificates
-          {{- if $.Values.customCertificateAuthority.existingSecret }}
+          {{- if .existingSecret }}
           secret:
-            secretName: {{ $.Values.customCertificateAuthority.existingSecret }}
-          {{- else }}
+            secretName: {{ .existingSecret }}
+          {{- else if or .configMapName .certificates }}
           configMap:
-            name: {{ $.Values.customCertificateAuthority.configMapName }}
+            name: {{ .configMapName | default "r2devops-ca-certificates" }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: 1Ki
           {{- end }}
+        {{- end }}
 
         {{- if eq .type "backend" }}
           {{- if and $.Values.postgresql.global.postgresql.auth.existingSecret (eq (default "" $.Values.postgresql.global.postgresql.auth.existingSecretType) "csi") }}
