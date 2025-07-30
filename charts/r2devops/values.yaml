@@ -32,8 +32,24 @@ front:
     #   cpu: 100m
     #   memory: 64Mi
   extraIngressAnnotations: {}
-  # -- Optional security context for containers.
-  securityContext: {}
+  # -- Security context for front containers.
+  securityContext:
+    # -- Allow privilege escalation within the container.
+    allowPrivilegeEscalation: false
+    capabilities:
+      # -- Drop specified Linux capabilities.
+      drop: [ALL]
+    # -- Run the container in privileged mode.
+    privileged: false
+    # -- Enforce running the container as non-root. Leave `false` until the image is able to be run in rootless mode.
+    runAsNonRoot: false
+    # -- Run the container as the specified user id (uid). Leave `0` until the image is able to be run in rootless mode.
+    runAsUser: 0
+    # -- Run the container as the specified group id (gid). Leave `0` until the image is able to be run in rootless mode.
+    runAsGroup: 0
+    seccompProfile:
+      # -- The Seccomp profile to apply to this container.
+      type: RuntimeDefault
   # -- Optional security context for pods.
   podSecurityContext: {}
   automountServiceAccountToken: true
@@ -67,8 +83,24 @@ jobs:
   # -- Optional existing service account name to use.
   serviceAccountName: ""
   extraIngressAnnotations: {}
-  # -- Optional security context for containers.
-  securityContext: {}
+  # -- Security context for backend containers.
+  securityContext:
+    # -- Allow privilege escalation within the container.
+    allowPrivilegeEscalation: false
+    capabilities:
+      # -- Drop specified Linux capabilities.
+      drop: [ALL]
+    # -- Run the container in privileged mode.
+    privileged: false
+    # -- Enforce running the container as non-root. Leave `false` until the image is able to be run in rootless mode.
+    runAsNonRoot: false
+    # -- Run the container as the specified user id (uid). Leave `0` until the image is able to be run in rootless mode.
+    runAsUser: 0
+    # -- Run the container as the specified group id (gid). Leave `0` until the image is able to be run in rootless mode.
+    runAsGroup: 0
+    seccompProfile:
+      # -- The Seccomp profile to apply to this container.
+      type: RuntimeDefault
   # -- Optional security context for pods.
   podSecurityContext: {}
   automountServiceAccountToken: true
@@ -134,8 +166,24 @@ worker:
   # -- Optional existing service account name to use.
   serviceAccountName: ""
   automountServiceAccountToken: true
-  # -- Optional security context for containers.
-  securityContext: {}
+  # -- Security context for worker containers.
+  securityContext:
+    # -- Allow privilege escalation within the container.
+    allowPrivilegeEscalation: false
+    capabilities:
+      # -- Drop specified Linux capabilities.
+      drop: [ALL]
+    # -- Run the container in privileged mode.
+    privileged: false
+    # -- Enforce running the container as non-root. Leave `false` until the image is able to be run in rootless mode.
+    runAsNonRoot: false
+    # -- Run the container as the specified user id (uid). Leave `0` until the image is able to be run in rootless mode.
+    runAsUser: 0
+    # -- Run the container as the specified group id (gid). Leave `0` until the image is able to be run in rootless mode.
+    runAsGroup: 0
+    seccompProfile:
+      # -- The Seccomp profile to apply to this container.
+      type: RuntimeDefault
   # -- Optional security context for pods.
   podSecurityContext: {}
 
