@@ -1,3 +1,4 @@
+{{- if .Values.customCertificateAuthority.certificates }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -14,8 +15,9 @@ metadata:
     {{ $key }}: {{ $val | quote }}
     {{- end }}
   {{- end }}
-  name: {{ .Values.customCertificateAuthority.configMapName }}
+  name: {{ .Values.customCertificateAuthority.configMapName | default "r2devops-ca-certificates" }}
 data:
   {{- range .Values.customCertificateAuthority.certificates }}
   {{ .name }}: {{ .value | quote }}
   {{- end }}
+{{- end }}
