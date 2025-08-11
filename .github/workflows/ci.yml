@@ -45,3 +45,21 @@ jobs:
           fi
       - name: Lint charts
         run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: d3adb5/helm-unittest-action@v2
+        with:
+          charts: charts/r2devops
+          flags: --color -o test-results.xml --output-type JUnit
+          helm-version: v3.10.1
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}   # run this step even if previous step failed
+        with:
+          name: Helm Unit Tests   # Name of the check run which will be created
+          path: test-results.xml  # Path to test results
+          reporter: java-junit    # Format of test results
+
