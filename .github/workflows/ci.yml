@@ -50,13 +50,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: d3adb5/helm-unittest-action@v2
+      - uses: d3adb5/helm-unittest-action@850bc76597579183998069830d5fa8c3ef0ea34a # 2.5.0
         with:
           charts: charts/r2devops
           flags: --color -o test-results.xml --output-type JUnit
           helm-version: v3.10.1
       - name: Test Report
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
         if: ${{ !cancelled() }}   # run this step even if previous step failed
         with:
           name: Helm Unit Tests   # Name of the check run which will be created
