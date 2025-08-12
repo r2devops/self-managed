@@ -2,8 +2,8 @@ apiVersion: v2
 name: r2devops
 description: Helm chart for R2Devops
 type: application
-version: "2.14.2"
-appVersion: "2.14.2"
+version: "2.14.3"
+appVersion: "2.14.3"
 home: https://github.com/r2devops/self-managed/
 maintainers:
   - name: devpro
