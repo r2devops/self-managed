@@ -2,6 +2,26 @@ apiVersion: v1
 entries:
   r2devops:
   - apiVersion: v2
+    appVersion: 2.14.2
+    created: "2025-08-12T09:04:05.869259553Z"
+    description: Helm chart for R2Devops
+    digest: 2ceb1e6b6ad6823cd59a0b2879f375dc8737e6e6713ced074ab68e4099dfd1fd
+    home: https://github.com/r2devops/self-managed/
+    maintainers:
+    - email: bertrand@devpro.fr
+      name: devpro
+    - email: slongo@klanik.com
+      name: gemini-jtff
+    - email: thomas@r2devops.io
+      name: thomasboni
+    - email: thibaud@r2devops.io
+      name: Totara-thib
+    name: r2devops
+    type: application
+    urls:
+    - https://github.com/r2devops/self-managed/releases/download/r2devops-2.14.2/r2devops-2.14.2.tgz
+    version: 2.14.2
+  - apiVersion: v2
     appVersion: 2.14.1
     created: "2025-08-12T07:32:03.018561603Z"
     description: Helm chart for R2Devops
@@ -5304,4 +5324,4 @@ entries:
     urls:
     - https://github.com/r2devops/self-managed/releases/download/r2devops-0.1.0/r2devops-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-12T07:32:03.019039069Z"
+generated: "2025-08-12T09:04:05.869699694Z"
