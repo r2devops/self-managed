@@ -20,8 +20,10 @@ x-jobs-common: &jobs-common
       - GITLEAKS_PATH=/opt/gitleaks
     restart: unless-stopped
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     networks:
@@ -50,7 +52,6 @@ services:
 
   jobs:
     <<: *jobs-common
-    command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     expose:
       - "80"
       - "9090"
@@ -61,7 +62,7 @@ services:
 
   jobs_worker:
     <<: *jobs-common
-    command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+    command: ["--worker"]
     deploy:
       mode: replicated
       replicas: 30
@@ -83,6 +84,12 @@ services:
     command:
       - redis-server
       - --requirepass $JOBS_REDIS_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$JOBS_REDIS_PASSWORD\" ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
     expose:
       - "6379"
     networks:
