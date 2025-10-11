@@ -104,7 +104,6 @@ spec:
   containers:
   - name: jobs
     image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
-    command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     ports:
     - containerPort: 80
       hostPort: 81
@@ -153,7 +152,7 @@ spec:
       containers:
       - name: workers
         image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
-        command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
+    args: ["--worker"]
         ports:
         - containerPort: 9090
         envFrom:
