@@ -79,7 +79,8 @@ services:
   #####################
 
   redis:
-    image: redis:7.4.5
+    image: redis:7.4
+    pull_policy: always
     restart: unless-stopped
     env_file:
       - .env
@@ -98,25 +99,96 @@ services:
       - intranet
 
   postgres:
-    image: postgres:13.21
+    image: postgres:18.0
+    pull_policy: always
     restart: unless-stopped
     environment:
       - POSTGRES_USER=$JOBS_DB_USER
       - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
       - POSTGRES_DB=$JOBS_DB_NAME
+      - PGDATA=/var/lib/postgresql/18/data
     expose:
       - "5432"
+    depends_on:
+      postgres_dump:
+        condition: service_completed_successfully
     networks:
       - intranet
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
+      - postgres-data:/docker-entrypoint-initdb.d
+
+  # One-shot migration helpers (idempotent)
+  postgres_prepare:
+    image: alpine:3.20
+    restart: "no"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        mkdir -p /var/lib/postgresql/13 /var/lib/postgresql/18
+        if [ -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          echo "Found existing 13 cluster under /var/lib/postgresql/13/data"
+        elif [ -f /var/lib/postgresql/data/PG_VERSION ] && [ "$(cat /var/lib/postgresql/data/PG_VERSION)" = "13" ]; then
+          echo "Moving legacy 13 cluster from /var/lib/postgresql/data to /var/lib/postgresql/13/data"
+          mv /var/lib/postgresql/data /var/lib/postgresql/13/data
+        else
+          echo "No legacy 13 cluster detected in expected locations"
+        fi
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - intranet
+
+  postgres_dump:
+    image: postgres:13.21
+    pull_policy: always
+    restart: "no"
+    depends_on:
+      - postgres_prepare
+    environment:
+      - PGPASSWORD=$JOBS_DB_PASSWORD
+      - PGUSER=$JOBS_DB_USER
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        if [ -f /var/lib/postgresql/18/data/PG_VERSION ]; then
+          echo "Postgres 18 already initialized, skipping dump."
+          exit 0
+        fi
+        if [ -f /var/lib/postgresql/01-dump.sql ]; then
+          echo "Dump file already exists, skipping."
+          exit 0
+        fi
+        OLD_DIR=""
+        if [ -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          OLD_DIR="/var/lib/postgresql/13/data"
+        elif [ -f /var/lib/postgresql/data/PG_VERSION ] && [ "$(cat /var/lib/postgresql/data/PG_VERSION)" = "13" ]; then
+          OLD_DIR="/var/lib/postgresql/data"
+        fi
+        if [ -n "$OLD_DIR" ]; then
+          echo "Starting temporary PostgreSQL 13 cluster from $OLD_DIR ..."
+          pg_ctl -D "$OLD_DIR" -o "-c listen_addresses='127.0.0.1' -p 5432" -w start
+          pg_dumpall -h 127.0.0.1 -p 5432 -U "$PGUSER" --no-owner --no-acl > /var/lib/postgresql/01-dump.sql
+          pg_ctl -D "$OLD_DIR" -m fast stop
+        else
+          echo "No 13 cluster found; skipping dump."
+        fi
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - intranet
 
   #################
   # Reverse proxy #
   #################
 
   traefik:
-    image: traefik:3.4.1
+    image: traefik:3.6
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       - frontend
