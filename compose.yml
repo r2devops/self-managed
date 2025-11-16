@@ -83,7 +83,8 @@ services:
   #####################
 
   redis:
-    image: redis:7.4.5
+    image: redis:7.4
+    pull_policy: always
     restart: unless-stopped
     env_file:
       - .env
@@ -126,7 +127,8 @@ services:
   #################
 
   traefik:
-    image: traefik:3.4.1
+    image: traefik:3.6
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       - frontend
