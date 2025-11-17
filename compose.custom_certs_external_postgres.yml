@@ -77,7 +77,8 @@ services:
   #####################
 
   redis:
-    image: redis:7.4.5
+    image: redis:7.4
+    pull_policy: always
     restart: unless-stopped
     env_file:
       - .env
@@ -96,25 +97,127 @@ services:
       - intranet
 
   postgres:
-    image: postgres:13.21
+    image: postgres:18.0
+    pull_policy: always
     restart: unless-stopped
     environment:
       - POSTGRES_USER=$JOBS_DB_USER
       - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
       - POSTGRES_DB=$JOBS_DB_NAME
+      - PGDATA=/var/lib/postgresql/18/data
     expose:
       - "5432"
+    depends_on:
+      postgres_upgrade:
+        condition: service_completed_successfully
     networks:
       - intranet
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
+
+  # One-shot migration helpers (idempotent)
+  postgres_prepare:
+    image: alpine:3.20
+    restart: "no"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        mkdir -p /var/lib/postgresql/13 /var/lib/postgresql/18
+        if [ -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          echo "Found existing 13 cluster under /var/lib/postgresql/13/data"
+        elif [ -f /var/lib/postgresql/PG_VERSION ] && [ "$(cat /var/lib/postgresql/PG_VERSION)" = "13" ]; then
+          echo "Detected legacy 13 cluster at volume root /var/lib/postgresql (mount target changed)"
+        elif [ -f /var/lib/postgresql/data/PG_VERSION ] && [ "$(cat /var/lib/postgresql/data/PG_VERSION)" = "13" ]; then
+          echo "Moving legacy 13 cluster from /var/lib/postgresql/data to /var/lib/postgresql/13/data"
+          mv /var/lib/postgresql/data /var/lib/postgresql/13/data
+        else
+          echo "No legacy 13 cluster detected in expected locations"
+        fi
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - intranet
+
+  postgres_upgrade:
+    image: postgres:18.0
+    pull_policy: always
+    restart: "no"
+    depends_on:
+      - postgres_prepare
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -eu
+        echo "=== PostgreSQL 13 to 18 Upgrade (pg_upgrade) ==="
+
+        if [ -f /var/lib/postgresql/18/data/PG_VERSION ]; then
+          echo "Postgres 18 already initialized, skipping upgrade."
+          exit 0
+        fi
+
+        OLD_DIR=""
+        if [ -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          OLD_DIR="/var/lib/postgresql/13/data"
+        elif [ -f /var/lib/postgresql/PG_VERSION ] && [ "$(cat /var/lib/postgresql/PG_VERSION)" = "13" ]; then
+          OLD_DIR="/var/lib/postgresql"
+        elif [ -f /var/lib/postgresql/data/PG_VERSION ] && [ "$(cat /var/lib/postgresql/data/PG_VERSION)" = "13" ]; then
+          OLD_DIR="/var/lib/postgresql/data"
+        fi
+
+        if [ -z "$OLD_DIR" ]; then
+          echo "No PostgreSQL 13 cluster found, skipping upgrade."
+          exit 0
+        fi
+
+        echo "Found PostgreSQL 13 cluster at: $OLD_DIR"
+        echo "Installing PostgreSQL 13 binaries..."
+        apt-get update -qq
+        apt-get install -y -qq postgresql-13 > /dev/null 2>&1
+
+        echo "Initializing PostgreSQL 18 cluster..."
+        mkdir -p /var/lib/postgresql/18/data
+        chown -R postgres:postgres /var/lib/postgresql/18
+        su postgres -c "/usr/lib/postgresql/18/bin/initdb -D /var/lib/postgresql/18/data"
+
+        echo "Running pg_upgrade --check..."
+        cd /var/lib/postgresql
+        su postgres -c "/usr/lib/postgresql/18/bin/pg_upgrade \
+          --old-bindir=/usr/lib/postgresql/13/bin \
+          --new-bindir=/usr/lib/postgresql/18/bin \
+          --old-datadir=$OLD_DIR \
+          --new-datadir=/var/lib/postgresql/18/data \
+          --username=postgres \
+          --check" || {
+          echo "ERROR: pg_upgrade --check failed."
+          exit 1
+        }
+
+        echo "Running pg_upgrade..."
+        su postgres -c "/usr/lib/postgresql/18/bin/pg_upgrade \
+          --old-bindir=/usr/lib/postgresql/13/bin \
+          --new-bindir=/usr/lib/postgresql/18/bin \
+          --old-datadir=$OLD_DIR \
+          --new-datadir=/var/lib/postgresql/18/data \
+          --username=postgres"
+
+        echo "=== Upgrade completed! Old cluster preserved at: $OLD_DIR ==="
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - intranet
 
   #################
   # Reverse proxy #
   #################
 
   traefik:
-    image: traefik:3.4.1
+    image: traefik:3.6
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       - frontend
