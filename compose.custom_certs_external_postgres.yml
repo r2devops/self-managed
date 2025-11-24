@@ -77,7 +77,8 @@ services:
   #####################
 
   redis:
-    image: redis:7.4.5
+    image: redis:7.4
+    pull_policy: always
     restart: unless-stopped
     env_file:
       - .env
@@ -95,26 +96,14 @@ services:
     networks:
       - intranet
 
-  postgres:
-    image: postgres:13.21
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=$JOBS_DB_USER
-      - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
-      - POSTGRES_DB=$JOBS_DB_NAME
-    expose:
-      - "5432"
-    networks:
-      - intranet
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
 
   #################
   # Reverse proxy #
   #################
 
   traefik:
-    image: traefik:3.4.1
+    image: traefik:3.6
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       - frontend
