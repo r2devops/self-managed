@@ -43,17 +43,11 @@ services:
     image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
     env_file: .env
     restart: unless-stopped
-    volumes:
-      - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
     expose:
       - "3000"
     labels:
-      - "traefik.http.routers.front.rule=Host(`${FRONTEND_DOMAIN}`)"
-      - "traefik.http.routers.front.entrypoints=websecure"
       - "traefik.http.routers.front.tls=true"
       - "traefik.http.routers.front.tls.certresolver=le"
-    networks:
-      - intranet
 
   jobs:
     <<: *jobs-common
