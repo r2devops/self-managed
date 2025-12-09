@@ -65,7 +65,7 @@ services:
     command: ["--worker"]
     deploy:
       mode: replicated
-      replicas: 30
+      replicas: 8
     expose:
       - "9090"
     labels:
