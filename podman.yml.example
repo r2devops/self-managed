@@ -140,7 +140,7 @@ spec:
       labels:
         traefik.enable: false
     spec:
-      replicas: 8
+      replicas: 5
       initContainers:
       - name: wait-for-services
         image: busybox

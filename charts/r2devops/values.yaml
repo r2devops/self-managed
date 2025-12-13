@@ -151,7 +151,7 @@ worker:
   name: r2devops-worker
   image: docker.io/r2devopsio/jobs
   tag: v2.33.0
-  replicaCount: 8
+  replicaCount: 5
   revisionHistoryLimit: 5
   args:
     - "--worker"
