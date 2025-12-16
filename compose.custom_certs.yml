@@ -81,7 +81,7 @@ services:
   #####################
 
   redis:
-    image: redis:7.4
+    image: redis:8.4
     pull_policy: always
     restart: unless-stopped
     env_file:
