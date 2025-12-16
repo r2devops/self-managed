@@ -1,0 +1,316 @@
+# This compose file cannot be used like that, it's a working example of compose
+# configutation with postgres migration
+
+name: "r2devops"
+
+x-jobs-common: &jobs-common
+    image: docker.io/r2devopsio/jobs:$BACKEND_IMAGE_TAG
+    env_file: .env
+    environment:
+      - JOBS_LISTEN_ADDR=0.0.0.0
+      - JOBS_LISTEN_PORT=80
+      - JOBS_CORS_ORIGIN=https://$DOMAIN_NAME
+      - JOBS_FRONTEND_URL=https://$DOMAIN_NAME
+      - JOBS_SESSION_TTL=168h
+      - JOBS_DB_HOST=postgres
+      - JOBS_DB_PORT=5432
+      - JOBS_DB_SSLMODE=disable
+      - JOBS_DB_TIMEZONE=Europe/Paris
+      - JOBS_API_DOMAIN=https://$API_URL
+      - LOG_LEVEL=info
+      - LOG_FORMATTER=text
+      - JOBS_REDIS_HOST=redis
+      - JOBS_REDIS_PORT=6379
+      - JOBS_REDIS_DB=0
+      - JOBS_REDIS_USER=default
+      - JOBS_REDIS_SET_NAMESPACES_TTL=30s
+      - GITLEAKS_PATH=/opt/gitleaks
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
+    networks:
+      - intranet
+
+services:
+
+  ############
+  # R2Devops #
+  ############
+
+  frontend:
+    image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./.docker/ca-certificates:/usr/local/share/ca-certificates/
+    expose:
+      - "3000"
+    labels:
+      - "traefik.http.routers.front.rule=Host(`${FRONTEND_DOMAIN}`)"
+      - "traefik.http.routers.front.entrypoints=websecure"
+      - "traefik.http.routers.front.tls=true"
+      - "traefik.http.routers.front.tls.certresolver=le"
+    networks:
+      - intranet
+
+  jobs:
+    <<: *jobs-common
+    expose:
+      - "80"
+      - "9090"
+    labels:
+      - "traefik.http.routers.api.rule=Host(\"$API_DOMAIN\")&&PathPrefix(\"$API_PATH\")"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=le"
+
+  jobs_worker:
+    <<: *jobs-common
+    command: ["--worker"]
+    deploy:
+      mode: replicated
+      replicas: 5
+    expose:
+      - "9090"
+    labels:
+      - "traefik.enable=false"
+
+
+  #####################
+  # External services #
+  #####################
+
+  redis:
+    image: redis:8.4
+    pull_policy: always
+    restart: unless-stopped
+    env_file:
+      - .env
+    command:
+      - redis-server
+      - --requirepass $JOBS_REDIS_PASSWORD
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$JOBS_REDIS_PASSWORD\" ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    expose:
+      - "6379"
+    networks:
+      - intranet
+
+  # Step 1: Prepare legacy data structure (move pg13 data to versioned path)
+  postgres_prepare:
+    image: alpine:3.20
+    restart: "no"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        echo "=== Preparing PostgreSQL data directories ==="
+
+        # Ensure version-specific directories exist
+        mkdir -p /var/lib/postgresql/13 /var/lib/postgresql/18
+
+        # Check various locations where PG13 data might exist
+        if [ -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          echo "PostgreSQL 13 already at correct location: /var/lib/postgresql/13/data"
+        elif [ -f /var/lib/postgresql/data/PG_VERSION ] && [ "$$(cat /var/lib/postgresql/data/PG_VERSION)" = "13" ]; then
+          echo "Found PostgreSQL 13 at: /var/lib/postgresql/data"
+          echo "Moving to: /var/lib/postgresql/13/data"
+          mv /var/lib/postgresql/data /var/lib/postgresql/13/data
+        elif [ -f /var/lib/postgresql/PG_VERSION ] && [ "$$(cat /var/lib/postgresql/PG_VERSION)" = "13" ]; then
+          echo "Found PostgreSQL 13 at volume root: /var/lib/postgresql"
+          echo "Moving to: /var/lib/postgresql/13/data"
+          mkdir -p /var/lib/postgresql/13/data
+          # Move all PG files/dirs except version-specific directories
+          find /var/lib/postgresql -maxdepth 1 -mindepth 1 ! -name '13' ! -name '18' -exec mv {} /var/lib/postgresql/13/data/ \;
+        else
+          echo "No PostgreSQL 13 data found (fresh install or already migrated and cleaned)"
+        fi
+
+        echo "=== Preparation complete ==="
+
+  # Step 2: Upgrade from PostgreSQL 13 to 18 using pg_upgrade
+  postgres_upgrade:
+    image: postgres:18.0
+    pull_policy: always
+    restart: "no"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    depends_on:
+      postgres_prepare:
+        condition: service_completed_successfully
+    env_file: .env
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -eu
+        echo "=== PostgreSQL 13 → 18 Upgrade Check ==="
+
+        # Check if pg18 already exists (idempotency)
+        if [ -f /var/lib/postgresql/18/data/PG_VERSION ]; then
+          echo "✓ PostgreSQL 18 already initialized (version: $$(cat /var/lib/postgresql/18/data/PG_VERSION))"
+          echo "✓ Skipping upgrade (idempotent)"
+          exit 0
+        fi
+
+        # Check if pg13 data exists
+        if [ ! -f /var/lib/postgresql/13/data/PG_VERSION ]; then
+          echo "✓ No PostgreSQL 13 cluster found"
+          echo "✓ Fresh installation - will initialize as PostgreSQL 18"
+          exit 0
+        fi
+
+        echo "Found PostgreSQL 13 cluster at: /var/lib/postgresql/13/data"
+        echo "Starting upgrade process..."
+
+        # Fix ownership and permissions of the old cluster (may have been changed during move)
+        echo "Fixing ownership and permissions of PostgreSQL 13 data directory..."
+        chown -R postgres:postgres /var/lib/postgresql/13
+        chmod 700 /var/lib/postgresql/13/data
+
+        # Install PostgreSQL 13 binaries (needed for pg_upgrade)
+        echo "Installing PostgreSQL 13 binaries..."
+        apt-get update -qq
+        apt-get install -y -qq postgresql-13 > /dev/null 2>&1
+
+        # Initialize new PostgreSQL 18 cluster
+        echo "Initializing PostgreSQL 18 cluster..."
+        mkdir -p /var/lib/postgresql/18/data
+        chown -R postgres:postgres /var/lib/postgresql/18
+
+        # Check if old cluster has checksums enabled
+        OLD_CHECKSUMS=$$(su postgres -c "/usr/lib/postgresql/13/bin/pg_controldata /var/lib/postgresql/13/data | grep 'Data page checksum version' | awk '{print \$$NF}'")
+
+        # Use the same database superuser from old cluster
+        INITDB_USER="$${JOBS_DB_USER:-postgres}"
+        echo "Initializing new cluster with superuser: $$INITDB_USER"
+
+        if [ "$$OLD_CHECKSUMS" = "0" ]; then
+          echo "Old cluster has checksums disabled, initializing new cluster without checksums"
+          su postgres -c "/usr/lib/postgresql/18/bin/initdb -D /var/lib/postgresql/18/data --no-data-checksums -U $$INITDB_USER"
+        else
+          echo "Old cluster has checksums enabled, initializing new cluster with checksums"
+          su postgres -c "/usr/lib/postgresql/18/bin/initdb -D /var/lib/postgresql/18/data --data-checksums -U $$INITDB_USER"
+        fi
+
+        # Run pg_upgrade check first
+        echo "Running pg_upgrade --check..."
+        cd /var/lib/postgresql
+        su postgres -c "/usr/lib/postgresql/18/bin/pg_upgrade \
+          --old-bindir=/usr/lib/postgresql/13/bin \
+          --new-bindir=/usr/lib/postgresql/18/bin \
+          --old-datadir=/var/lib/postgresql/13/data \
+          --new-datadir=/var/lib/postgresql/18/data \
+          --username=$${JOBS_DB_USER:-postgres} \
+          --check" || {
+          echo "ERROR: pg_upgrade --check failed. Please review the error above."
+          exit 1
+        }
+
+        # Perform actual upgrade
+        echo "Running pg_upgrade (this may take several minutes)..."
+        su postgres -c "/usr/lib/postgresql/18/bin/pg_upgrade \
+          --old-bindir=/usr/lib/postgresql/13/bin \
+          --new-bindir=/usr/lib/postgresql/18/bin \
+          --old-datadir=/var/lib/postgresql/13/data \
+          --new-datadir=/var/lib/postgresql/18/data \
+          --username=$${JOBS_DB_USER:-postgres} \
+          --link" || {
+          echo "ERROR: pg_upgrade failed. Please review the error above."
+          exit 1
+        }
+
+        # Copy pg_hba.conf from old cluster (preserves existing authentication rules)
+        echo "Copying pg_hba.conf from old cluster..."
+        cp /var/lib/postgresql/13/data/pg_hba.conf /var/lib/postgresql/18/data/pg_hba.conf
+        chown postgres:postgres /var/lib/postgresql/18/data/pg_hba.conf
+
+        echo "=== ✓ Upgrade completed successfully! ==="
+        echo "Note: Old PostgreSQL 13 data preserved at: /var/lib/postgresql/13/data"
+        echo "      You can remove it after verifying the migration."
+
+  # Step 3: Run PostgreSQL 18
+  postgres:
+    image: postgres:18
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    env_file: .env
+    environment:
+      - POSTGRES_USER=$JOBS_DB_USER
+      - POSTGRES_PASSWORD=$JOBS_DB_PASSWORD
+      - POSTGRES_DB=$JOBS_DB_NAME
+      - PGDATA=/var/lib/postgresql/18/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h 127.0.0.1 -p 5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    expose:
+      - "5432"
+    networks:
+      - intranet
+    depends_on:
+      postgres_upgrade:
+        condition: service_completed_successfully
+
+  #################
+  # Reverse proxy #
+  #################
+
+  traefik:
+    image: traefik:3.6
+    pull_policy: always
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - jobs
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --log.level=DEBUG
+      - --accesslog=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.le.acme.storage=/acme/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+    labels:
+      - "traefik.enable=false"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
+      - "traefik.http.routers.traefik.service=api@internal"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-acme:/acme
+    networks:
+      - intranet
+
+networks:
+  intranet:
+
+volumes:
+  postgres-data:
+  traefik-acme:
