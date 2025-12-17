@@ -81,6 +81,14 @@ else
     exit 1
 fi
 
+# Remove the backup folder after compression
+echo "Cleaning up temporary backup folder..."
+if rm -rf $BACKUP_PATH; then
+    echo "✅ Temporary backup folder has been removed"
+else
+    echo "⚠️ Warning: Could not remove temporary backup folder"
+fi
+
 # Optional: Upload the backup to S3 if the bucket name is provided
 if [ -n "$S3_DESTINATION" ]; then
     echo "Uploading the backup to S3..."
@@ -101,6 +109,12 @@ if [ -n "$S3_DESTINATION" ]; then
     # Execute the AWS CLI command
     if eval $S3_CLI_CMD; then
         echo "✅ Backup has been uploaded to S3 bucket $S3_DESTINATION at $S3_URI"
+        # Remove local archive after successful upload
+        if rm -f $BACKUP_PATH.tar.gz; then
+            echo "✅ Local archive has been removed"
+        else
+            echo "⚠️ Warning: Could not remove local archive"
+        fi
     else
         echo "❌ Error while uploading backup to S3"
     fi
