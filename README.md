@@ -7,6 +7,8 @@
 > **This repository is no longer actively maintained and will be archived in the future.**
 > 
 > Self-managed R2Devops is being deprecated. While existing installations will continue to work, no new features, bug fixes, or security updates will be provided. Please plan accordingly.
+>
+> **Find us at [Plumber](https://github.com/getplumber).**
 
 This project contains resources to setup a self-managed instance of [R2Devops](https://r2devops.io/).
 
