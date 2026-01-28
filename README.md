@@ -3,12 +3,12 @@
 [![CI](https://github.com/r2devops/self-managed/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/ci.yml)
 [![Release](https://github.com/r2devops/self-managed/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/release.yml)
 
-> [!WARNING]
-> **This repository is no longer actively maintained and will be archived in the future.**
+> [!IMPORTANT]
+> **This repository has moved!**
 > 
-> Self-managed R2Devops is being deprecated. While existing installations will continue to work, no new features, bug fixes, or security updates will be provided. Please plan accordingly.
+> R2Devops has been renamed to [**Plumber**](https://github.com/getplumber). This repository will no longer receive updates and will be archived in the future.
 >
-> **Find us at [Plumber](https://github.com/getplumber).**
+> **Please use the new repository: [github.com/getplumber/platform](https://github.com/getplumber/platform)**
 
 This project contains resources to setup a self-managed instance of [R2Devops](https://r2devops.io/).
 
