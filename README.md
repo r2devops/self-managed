@@ -3,6 +3,13 @@
 [![CI](https://github.com/r2devops/self-managed/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/ci.yml)
 [![Release](https://github.com/r2devops/self-managed/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/r2devops/self-managed/actions/workflows/release.yml)
 
+> [!IMPORTANT]
+> **This repository has moved!**
+> 
+> R2Devops has been renamed to [**Plumber**](https://github.com/getplumber). This repository will no longer receive updates and will be archived in the future.
+>
+> **Please use the new repository: [github.com/getplumber/platform](https://github.com/getplumber/platform)**
+
 This project contains resources to setup a self-managed instance of [R2Devops](https://r2devops.io/).
 
 ## Installation
