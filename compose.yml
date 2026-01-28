@@ -1,7 +1,7 @@
-name: "r2devops"
+name: "plumber"
 
-x-jobs-common: &jobs-common
-    image: docker.io/r2devopsio/jobs:$BACKEND_IMAGE_TAG
+x-backend-common: &backend-common
+    image: docker.io/plumberio/jobs:$BACKEND_IMAGE_TAG
     env_file: .env
     environment:
       - JOBS_LISTEN_ADDR=0.0.0.0
@@ -36,11 +36,11 @@ x-jobs-common: &jobs-common
 services:
 
   ############
-  # R2Devops #
+  # Plumber #
   ############
 
   frontend:
-    image: docker.io/r2devopsio/frontend:$FRONTEND_IMAGE_TAG
+    image: docker.io/plumberio/frontend:$FRONTEND_IMAGE_TAG
     env_file: .env
     restart: unless-stopped
     volumes:
@@ -55,8 +55,8 @@ services:
     networks:
       - intranet
 
-  jobs:
-    <<: *jobs-common
+  backend:
+    <<: *backend-common
     expose:
       - "80"
       - "9090"
@@ -66,8 +66,8 @@ services:
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=le"
 
-  jobs_worker:
-    <<: *jobs-common
+  worker:
+    <<: *backend-common
     command: ["--worker"]
     deploy:
       mode: replicated
@@ -135,7 +135,7 @@ services:
     restart: unless-stopped
     depends_on:
       - frontend
-      - jobs
+      - backend
     ports:
       - "80:80"
       - "443:443"

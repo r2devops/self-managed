@@ -1,0 +1,16 @@
+apiVersion: v2
+name: plumber
+description: Helm chart for Plumber
+type: application
+version: "1.0.0"
+appVersion: "1.0.0"
+home: https://github.com/getplumber/platform/
+maintainers:
+  - name: devpro
+    email: bertrand@devpro.fr
+  - name: gemini-jtff
+    email: slongo@klanik.com
+  - name: thomasboni
+    email: thomas@getplumber.io
+  - name: Totara-thib
+    email: thibaud@getplumber.io

@@ -1,7 +1,7 @@
 ########################################################################
-# R2Devops configuration file                                          #
+# Plumber configuration file                                           #
 # Community support                                                    #
-# Documentation: https://docs.r2devops.io/self-managed/local-podman/   #
+# Documentation: https://getplumber.io/docs/installation/local-podman/ #
 ########################################################################
 # Redis
 apiVersion: v1
@@ -19,7 +19,7 @@ spec:
     - containerPort: 6379
     envFrom:
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
 status: {}
 ---
@@ -50,21 +50,21 @@ spec:
       claimName: postgres-data
 status: {}
 ---
-# R2DevOps Front
+# Plumber Front
 apiVersion: v1
 kind: Pod
 metadata:
-  name: r2devops-front
+  name: plumber-front
 spec:
   containers:
   - name: frontend
-    image: docker.io/r2devopsio/frontend:${FRONTEND_IMAGE_TAG}
+    image: docker.io/plumberio/frontend:${FRONTEND_IMAGE_TAG}
     ports:
     - containerPort: 3000
       hostPort: 3000
     envFrom:
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
     volumeMounts:
     - name: certs
@@ -76,11 +76,11 @@ spec:
       type: Directory
 status: {}
 ---
-# R2DevOps Job
+# Plumber Backend
 apiVersion: v1
 kind: Pod
 metadata:
-  name: jobs
+  name: backend
 spec:
   initContainers:
   - name: wait-for-services
@@ -91,18 +91,18 @@ spec:
     args:
     - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
   containers:
-  - name: jobs
-    image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+  - name: backend
+    image: docker.io/plumberio/jobs:${BACKEND_IMAGE_TAG}
     command: ["/bin/sh", "-c", "sleep 10 && ./app"]
     ports:
     - containerPort: 3000
       hostPort: 3001
     envFrom:
     - configMapRef:
-        name: r2devops-jobs
+        name: plumber-backend
         optional: false
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
     volumeMounts:
     - name: certs
@@ -114,18 +114,18 @@ spec:
       type: Directory
 status: {}
 ---
-# R2DevOps workers
+# Plumber workers
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: r2devops-workers-deployment
+  name: plumber-workers-deployment
 spec:
   selector:
     matchLabels:
-      app: r2devops-workers
+      app: plumber-workers
   template:
     metadata:
-      name: r2devops-workers
+      name: plumber-workers
     spec:
       replicas: 5
       initContainers:
@@ -138,14 +138,14 @@ spec:
         - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
       containers:
       - name: workers
-        image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+        image: docker.io/plumberio/jobs:${BACKEND_IMAGE_TAG}
         command: ["/bin/sh", "-c", "sleep 15 && ./app --worker"]
         envFrom:
         - configMapRef:
-            name: r2devops-jobs
+            name: plumber-backend
             optional: false
         - configMapRef:
-            name: r2devops-envs
+            name: plumber-envs
             optional: false
         volumeMounts:
         - name: certs

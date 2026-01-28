@@ -1,4 +1,4 @@
-{{- $applications := list .Values.front .Values.jobs -}}
+{{- $applications := list .Values.front .Values.backend -}}
 {{ range $applications }}
 {{- if .enabled -}}
 ---

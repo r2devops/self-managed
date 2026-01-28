@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: d3adb5/helm-unittest-action@850bc76597579183998069830d5fa8c3ef0ea34a # 2.5.0
         with:
-          charts: charts/r2devops
+          charts: charts/plumber
           flags: --color -o test-results.xml --output-type JUnit
           helm-version: v3.10.1
       - name: Test Report

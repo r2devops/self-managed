@@ -15,7 +15,7 @@ metadata:
     {{ $key }}: {{ $val | quote }}
     {{- end }}
   {{- end }}
-  name: {{ .Values.customCertificateAuthority.configMapName | default "r2devops-ca-certificates" }}
+  name: {{ .Values.customCertificateAuthority.configMapName | default "plumber-ca-certificates" }}
 data:
   {{- range .Values.customCertificateAuthority.certificates }}
   {{ .name }}: {{ .value | quote }}

@@ -1,4 +1,4 @@
-# Contributing to R2Devops Helm chart
+# Contributing to Plumber Helm chart
 
 In this page, you'll find command lines to help you contribute to the Helm chart.
 

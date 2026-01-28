@@ -3,7 +3,7 @@ suite: Test custom CA certificates configmap
 templates:
   - deployment.yaml
 release:
-  name: r2devops
+  name: plumber
 tests:
   - it: Deployments should have an empty ca-certificates volume if not configured
     set:
@@ -92,4 +92,4 @@ tests:
           content:
             name: ca-certificates
             configMap:
-              name: r2devops-ca-certificates
+              name: plumber-ca-certificates

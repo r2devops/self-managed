@@ -6,7 +6,7 @@
 # Usage function
 usage() {
     echo "Usage: $0 pg-version [s3-destination] [s3-endpoint] [s3-access-key] [s3-secret-key] [s3-region]"
-    echo "Backup R2Devops. You must run this CLI from the root of your R2Devops local git repository"
+    echo "Backup Plumber. You must run this CLI from the root of your Plumber local git repository"
     echo
     echo "Options:"
     echo "  pg-version      Version of PostgreSQL you are using"
@@ -18,14 +18,14 @@ usage() {
     echo "  -h, --help      Display this help message"
 }
 
-# Source R2Devops configuration
+# Source Plumber configuration
 source .env
 
 # Define some consts
 BACKUPS_DIR=backups
-BACKUP_NAME=backup_r2-$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_NAME=backup_plumber-$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_PATH=$BACKUPS_DIR/$BACKUP_NAME
-PROJECT_NAME=r2devops
+PROJECT_NAME=plumber
 
 # Check if --help or -h is provided as the first argument
 if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
@@ -65,7 +65,7 @@ fi
 
 # Backup the `config.json` file:
 echo "Saving the config.json file..."
-if cp .docker/r2devops/config.json $BACKUP_PATH; then
+if cp .docker/plumber/config.json $BACKUP_PATH; then
     echo "✅ The config.json file has been saved"
 else
     echo "❌ Error while saving the config.json file"

@@ -1,4 +1,4 @@
-{{- $applications := list .Values.front .Values.jobs .Values.worker -}}
+{{- $applications := list .Values.front .Values.backend .Values.worker -}}
 {{ range $applications }}
 {{- if .enabled -}}
 ---
@@ -67,8 +67,8 @@ spec:
           {{- if .extraEnv }}
             {{- toYaml .extraEnv | nindent 12 }}
           {{- end }}
-          {{- if .addJobsExtraEnv }}
-            {{- toYaml $.Values.jobs.extraEnv | nindent 12 }}
+          {{- if .addBackendExtraEnv }}
+            {{- toYaml $.Values.backend.extraEnv | nindent 12 }}
           {{- end }}
             - name: HOST_IP
               valueFrom:
@@ -83,7 +83,7 @@ spec:
             - name: JOBS_DB_HOST
               value: "{{ default (printf "%s-%s" $.Release.Name "postgresql") $.Values.postgresql.custom.host }}"
             - name: JOBS_SESSION_TTL
-              value: "{{ default "168h" $.Values.jobs.sessionTTL }}"
+              value: "{{ default "168h" $.Values.backend.sessionTTL }}"
             - name: JOBS_DB_PORT
               value: "{{ $.Values.postgresql.custom.port }}"
             - name: JOBS_DB_USER
@@ -99,7 +99,7 @@ spec:
             - name: ORGANIZATION
               value: "{{ $.Values.gitlab.organization }}"
             - name: JOBS_API_DOMAIN
-              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/api"
+              value: "https://{{ default $.Values.backend.name $.Values.backend.host }}/api"
             - name: JOBS_FRONTEND_URL
               value: "https://{{ default $.Values.front.name $.Values.front.host }}"
             - name: JOBS_CORS_ORIGIN
@@ -156,7 +156,7 @@ spec:
             - name: ALLOW_EXTERNAL_QUERIES
               value: "{{ .allowExternalQueries }}"
             - name: API_URL
-              value: "https://{{ default $.Values.jobs.name $.Values.jobs.host }}/api"
+              value: "https://{{ default $.Values.backend.name $.Values.backend.host }}/api"
             - name: JOBS_GITLAB_URL
               value: "{{ $.Values.gitlab.domain }}"
             {{- end }}
@@ -206,7 +206,7 @@ spec:
             secretName: {{ .existingSecret }}
           {{- else if or .configMapName .certificates }}
           configMap:
-            name: {{ .configMapName | default "r2devops-ca-certificates" }}
+            name: {{ .configMapName | default "plumber-ca-certificates" }}
           {{- else }}
           emptyDir:
             sizeLimit: 1Ki

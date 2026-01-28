@@ -1,12 +1,12 @@
 ########################################################################
-# R2Devops configuration file                                          #
+# Plumber configuration file                                           #
 # Community support                                                    #
-# Documentation: https://docs.r2devops.io/self-managed/local-podman/   #
+# Documentation: https://getplumber.io/docs/installation/local-podman/ #
 ########################################################################
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: r2devops-jobs
+  name: plumber-backend
 data:
   JOBS_LISTEN_ADDR: 0.0.0.0
   JOBS_LISTEN_PORT: 3000
@@ -30,7 +30,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: r2devops-envs
+  name: plumber-envs
 data:
   JOBS_GITLAB_URL: "${JOBS_GITLAB_URL}"
   FRONTEND_IMAGE_TAG: "${FRONTEND_IMAGE_TAG}"

@@ -7,8 +7,8 @@ additionalLabels: {}
 front:
   enabled: true
   type: frontend
-  name: r2devops-front
-  image: docker.io/r2devopsio/frontend
+  name: plumber-front
+  image: docker.io/plumberio/frontend
   tag: v2.30.2
   replicaCount: 1
   revisionHistoryLimit: 5
@@ -63,11 +63,11 @@ front:
   # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
 
-jobs:
+backend:
   enabled: true
   type: backend
-  name: r2devops-jobs
-  image: docker.io/r2devopsio/jobs
+  name: plumber-backend
+  image: docker.io/plumberio/jobs
   tag: v2.34.0
   replicaCount: 1
   revisionHistoryLimit: 5
@@ -114,7 +114,7 @@ jobs:
   # For more info see https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
   tolerations: []
 
-  # Not using secret for R2devops secrets (comment if you use secret)
+  # Not using secret for Plumber secrets (comment if you use secret)
   extraEnv:
     - name: SECRET_KEY
       value: "<secret-key>"
@@ -123,22 +123,22 @@ jobs:
     - name: GITLAB_OAUTH2_CLIENT_SECRET
       value: "<gitlab-oauth2-client-secret>"
 
-  # Using existing secret for R2Devops secrets (uncomment if you use secret)
+  # Using existing secret for Plumber secrets (uncomment if you use secret)
   # extraEnv:
   #   - name: SECRET_KEY
   #     valueFrom:
   #       secretKeyRef:
-  #         name: "r2devops-secret"
+  #         name: "plumber-secret"
   #         key: "secret-key"
   #   - name: GITLAB_OAUTH2_CLIENT_ID
   #     valueFrom:
   #       secretKeyRef:
-  #         name: "r2devops-secret"
+  #         name: "plumber-secret"
   #         key: "gitlab-oauth2-client-id"
   #   - name: GITLAB_OAUTH2_CLIENT_SECRET
   #     valueFrom:
   #       secretKeyRef:
-  #         name: "r2devops-secret"
+  #         name: "plumber-secret"
   #         key: "gitlab-oauth2-client-secret"
 
 gitlab:
@@ -148,8 +148,8 @@ gitlab:
 worker:
   enabled: true
   type: backend
-  name: r2devops-worker
-  image: docker.io/r2devopsio/jobs
+  name: plumber-worker
+  image: docker.io/plumberio/jobs
   tag: v2.34.0
   replicaCount: 5
   revisionHistoryLimit: 5
@@ -158,7 +158,7 @@ worker:
   livenessEndpoint: "/job/health/alive"
   readinesspoint: "/job/health/ready"
   extraEnv: []
-  addJobsExtraEnv: true
+  addBackendExtraEnv: true
   host: ""
   tls: {}
   resources: {}
@@ -216,7 +216,7 @@ customCertificateAuthority:
 postgresql:
   custom:
     host: ""
-    dbName: "r2devops"
+    dbName: "plumber"
     sslmode: "disable"
     port: 5432
   global:
@@ -224,13 +224,13 @@ postgresql:
 
       # Not using secret for auth (comment if you use secret)
       auth:
-        username: r2devops
+        username: plumber
         password: secretpassword
         postgresPassword: secretpassword
 
       # Using existing secret for auth password (uncomment if you use secret)
       # auth:
-      #   username: r2devops
+      #   username: plumber
       #   existingSecret: "postgresql-secret"
       #   existingSecretType: "csi" # Remove or leave empty if secret is not managed by CSI Driver
       #   secretKeys:

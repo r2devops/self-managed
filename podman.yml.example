@@ -1,7 +1,7 @@
 ########################################################################
-# R2Devops configuration file                                          #
+# Plumber configuration file                                           #
 # Community support                                                    #
-# Documentation: https://docs.r2devops.io/self-managed/podman/         #
+# Documentation: https://getplumber.io/docs/installation/podman/       #
 ########################################################################
 # Redis
 apiVersion: v1
@@ -19,7 +19,7 @@ spec:
     - containerPort: 6379
     envFrom:
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
 status: {}
 ---
@@ -51,11 +51,11 @@ spec:
       claimName: postgres-data
 status: {}
 ---
-# R2DevOps Front
+# Plumber Front
 apiVersion: v1
 kind: Pod
 metadata:
-  name: r2devops-front
+  name: plumber-front
   labels:
     traefik.http.routers.front.rule: Host(`${FRONTEND_DOMAIN}`)
     traefik.http.routers.front.entrypoints: websecure
@@ -64,13 +64,13 @@ metadata:
 spec:
   containers:
   - name: frontend
-    image: docker.io/r2devopsio/frontend:${FRONTEND_IMAGE_TAG}
+    image: docker.io/plumberio/frontend:${FRONTEND_IMAGE_TAG}
     ports:
     - containerPort: 3000
       hostPort: 3000
     envFrom:
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
     volumeMounts:
     - name: certs
@@ -82,11 +82,11 @@ spec:
       type: Directory
 status: {}
 ---
-# R2DevOps Job
+# Plumber Backend
 apiVersion: v1
 kind: Pod
 metadata:
-  name: r2devops-job
+  name: plumber-backend
   labels:
     traefik.http.routers.api.rule: "Host(\"${API_DOMAIN}\")&&PathPrefix(\"${API_PATH}\")"
     traefik.http.routers.api.entrypoints: websecure
@@ -102,18 +102,18 @@ spec:
     args:
     - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
   containers:
-  - name: jobs
-    image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+  - name: backend
+    image: docker.io/plumberio/jobs:${BACKEND_IMAGE_TAG}
     ports:
     - containerPort: 80
       hostPort: 81
     - containerPort: 9090
     envFrom:
     - configMapRef:
-        name: r2devops-jobs
+        name: plumber-backend
         optional: false
     - configMapRef:
-        name: r2devops-envs
+        name: plumber-envs
         optional: false
     volumeMounts:
     - name: certs
@@ -125,18 +125,18 @@ spec:
       type: Directory
 status: {}
 ---
-# R2DevOps workers
+# Plumber workers
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: r2devops-workers-deployment
+  name: plumber-workers-deployment
 spec:
   selector:
     matchLabels:
-      app: r2devops-workers
+      app: plumber-workers
   template:
     metadata:
-      name: r2devops-workers
+      name: plumber-workers
       labels:
         traefik.enable: false
     spec:
@@ -151,16 +151,16 @@ spec:
         - "until echo 'Waiting for postgres...' && nc -vz -w 2 postgres 5432 && echo 'Waiting for redis...' && nc -vz -w 2 redis 6379; do echo 'Looping forever...'; sleep 2; done;"
       containers:
       - name: workers
-        image: docker.io/r2devopsio/jobs:${BACKEND_IMAGE_TAG}
+        image: docker.io/plumberio/jobs:${BACKEND_IMAGE_TAG}
     args: ["--worker"]
         ports:
         - containerPort: 9090
         envFrom:
         - configMapRef:
-            name: r2devops-jobs
+            name: plumber-backend
             optional: false
         - configMapRef:
-            name: r2devops-envs
+            name: plumber-envs
             optional: false
         volumeMounts:
         - name: certs
@@ -191,7 +191,7 @@ spec:
     - "/bin/sh"
     - "-c"
     args:
-    - "until echo 'Waiting for front...' && nc -vz -w 2 frontend 3000 && echo 'Waiting for jobs...' && nc -vz -w 2 jobs 9090; do echo 'Looping forever...'; sleep 2; done;"
+    - "until echo 'Waiting for front...' && nc -vz -w 2 frontend 3000 && echo 'Waiting for backend...' && nc -vz -w 2 backend 9090; do echo 'Looping forever...'; sleep 2; done;"
   containers:
   - name: traefik
     image: traefik:3.4.1

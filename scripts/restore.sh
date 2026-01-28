@@ -6,7 +6,7 @@
 # Usage function
 usage() {
     echo "Usage: $0 pg-version <backup_file_path_or_s3_url> [s3-endpoint] [s3-access-key] [s3-secret-key] [s3-region]"
-    echo "Restore R2Devops. You must run this CLI from the root of your R2Devops local git repository"
+    echo "Restore Plumber. You must run this CLI from the root of your Plumber local git repository"
     echo
     echo "Options:"
     echo "  pg-version                  Version of PostgreSQL you are using"
@@ -19,7 +19,7 @@ usage() {
 }
 
 # Define some consts
-PROJECT_NAME=r2devops
+PROJECT_NAME=plumber
 
 # Get arguments
 PG_VERSION=$1
@@ -105,7 +105,7 @@ else
 fi
 
 echo "Restoring the config.json file..."
-if cp "$BACKUP_DIR/config.json" .docker/r2devops/config.json; then
+if cp "$BACKUP_DIR/config.json" .docker/plumber/config.json; then
     echo "✅ The config.json file has been restored"
 else
     echo "❌ Error while restoring the config.json file"
